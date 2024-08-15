@@ -2,6 +2,9 @@ package edu.kit.kastel.mcse.ardoco.metrics.rest.controller
 
 import edu.kit.kastel.mcse.ardoco.metrics.ClassificationMetricsCalculator
 import edu.kit.kastel.mcse.ardoco.metrics.ClassificationResult
+import io.swagger.v3.oas.annotations.OpenAPIDefinition
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.info.Info
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -11,11 +14,13 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/classification-metrics")
 class ClassificationMetricsController {
+    @Operation(summary = "Check if the service is running")
     @GetMapping
     fun running(): String {
         return "ClassificationMetricsController is running"
     }
 
+    @Operation(summary = "Calculate classification metrics for one project")
     @PostMapping
     fun calculateClassificationMetrics(
         @RequestBody body: ClassificationMetricsRequest
@@ -25,6 +30,7 @@ class ClassificationMetricsController {
         return result
     }
 
+    @Operation(summary = "Calculate classification metrics for multiple projects. Calculate the average and optionally a weighted average.")
     @PostMapping("/average")
     fun calculateMultipleClassificationMetrics(
         @RequestBody body: AverageClassificationMetricsRequest
@@ -35,10 +41,9 @@ class ClassificationMetricsController {
         val results = requests.map { classificationMetricsCalculator.calculateMetrics(it.classification.toSet(), it.groundTruth.toSet(), it.confusionMatrixSum) }
         val average = classificationMetricsCalculator.calculateAverage(results)
         var weightedAverage: ClassificationResult? = null
-        if (body.weights != null)
-            {
-                weightedAverage = classificationMetricsCalculator.calculateWeightedAverage(results, body.weights)
-            }
+        if (body.weights != null) {
+            weightedAverage = classificationMetricsCalculator.calculateWeightedAverage(results, body.weights)
+        }
 
         return AverageClassificationMetricsResponse(results, average, weightedAverage)
     }
