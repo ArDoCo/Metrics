@@ -7,11 +7,13 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import edu.kit.kastel.mcse.ardoco.metrics.ClassificationMetricsCalculator
 import edu.kit.kastel.mcse.ardoco.metrics.ClassificationResult
 import kotlinx.cli.ArgType
+import kotlinx.cli.ExperimentalCli
 import kotlinx.cli.SingleNullableOption
 import kotlinx.cli.Subcommand
 import kotlinx.cli.required
 import java.io.File
 
+@OptIn(ExperimentalCli::class)
 class MultiClassificationCommand(private val outputFileOption: SingleNullableOption<String>) : Subcommand("multi", "Aggregate results of multiple classifications") {
     private val directoryWithResultsOption by option(ArgType.String, shortName = "d", description = "The directory with the classification results").required()
 
