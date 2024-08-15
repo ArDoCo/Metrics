@@ -25,6 +25,35 @@ class ClassificationMetricsController {
         return result
     }
 
+    @PostMapping("/average")
+    fun calculateMultipleClassificationMetrics(
+        @RequestBody body: AverageClassificationMetricsRequest
+    ): AverageClassificationMetricsResponse {
+        val classificationMetricsCalculator = ClassificationMetricsCalculator.Instance
+
+        val requests = body.classificationMetricsRequests
+        val results = requests.map { classificationMetricsCalculator.calculateMetrics(it.classification.toSet(), it.groundTruth.toSet(), it.confusionMatrixSum) }
+        val average = classificationMetricsCalculator.calculateAverage(results)
+        var weightedAverage: ClassificationResult? = null
+        if (body.weights != null)
+            {
+                weightedAverage = classificationMetricsCalculator.calculateWeightedAverage(results, body.weights)
+            }
+
+        return AverageClassificationMetricsResponse(results, average, weightedAverage)
+    }
+
+    data class AverageClassificationMetricsRequest(
+        val classificationMetricsRequests: List<ClassificationMetricsRequest>,
+        val weights: List<Int>? = null
+    )
+
+    data class AverageClassificationMetricsResponse(
+        val classificationResults: List<ClassificationResult>,
+        val averageClassificationResult: ClassificationResult,
+        val weightedAverageClassificationResult: ClassificationResult?
+    )
+
     data class ClassificationMetricsRequest(
         val classification: List<String>,
         val groundTruth: List<String>,

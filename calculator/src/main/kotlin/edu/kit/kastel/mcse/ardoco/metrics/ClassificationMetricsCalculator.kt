@@ -1,5 +1,7 @@
 package edu.kit.kastel.mcse.ardoco.metrics
 
+import edu.kit.kastel.mcse.ardoco.metrics.internal.ClassificationMetricsCalculatorImpl
+
 interface ClassificationMetricsCalculator {
     companion object {
         @JvmStatic
@@ -24,46 +26,11 @@ interface ClassificationMetricsCalculator {
         groundTruth: Set<String>,
         confusionMatrixSum: Int?
     ): ClassificationResult
-}
 
-internal class ClassificationMetricsCalculatorImpl : ClassificationMetricsCalculator {
-    override fun calculateMetrics(
-        classification: Set<String>,
-        groundTruth: Set<String>,
-        confusionMatrixSum: Int?
-    ): ClassificationResult {
-        val tp = classification.intersect(groundTruth).size
-        val fp = classification.size - tp
-        val fn = groundTruth.size - tp
+    fun calculateAverage(classificationResults: Collection<ClassificationResult>): ClassificationResult
 
-        val precision = calculatePrecision(tp, fp)
-        val recall = calculateRecall(tp, fn)
-        val f1 = calculateF1(precision, recall)
-
-        if (confusionMatrixSum == null) {
-            return ClassificationResult(tp, fp, fn, null, precision, recall, f1, null, null, null, null, null)
-        }
-
-        val tn = confusionMatrixSum - (tp + fp + fn)
-        val accuracy = calculateAccuracy(tp, fp, fn, tn)
-        val specificity = calculateSpecificity(tn, fp)
-        val phiCoefficient = calculatePhiCoefficient(tp, fp, fn, tn)
-        val phiCoefficientMax = calculatePhiCoefficientMax(tp, fp, fn, tn)
-        val phiOverPhiMax = calculatePhiOverPhiMax(tp, fp, fn, tn)
-
-        return ClassificationResult(
-            tp,
-            fp,
-            fn,
-            tn,
-            precision,
-            recall,
-            f1,
-            accuracy,
-            specificity,
-            phiCoefficient,
-            phiCoefficientMax,
-            phiOverPhiMax
-        )
-    }
+    fun calculateWeightedAverage(
+        classificationResults: List<ClassificationResult>,
+        weights: List<Int>
+    ): ClassificationResult
 }
