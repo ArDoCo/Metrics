@@ -311,9 +311,7 @@
             <phase>compile</phase>
             <configuration>
               <jvmTarget>${java.version}</jvmTarget>
-              <args>
-                <arg>-java-parameters</arg>
-              </args>
+              <javaParameters>true</javaParameters>
             </configuration>
           </execution>
           <execution>
