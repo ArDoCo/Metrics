@@ -27,10 +27,13 @@ interface ClassificationMetricsCalculator {
         confusionMatrixSum: Int?
     ): ClassificationResult
 
-    fun calculateAverage(classificationResults: Collection<ClassificationResult>): ClassificationResult
-
-    fun calculateWeightedAverage(
+    /**
+     * Calculates the averages of the given classification results.
+     * @param classificationResults the classification results
+     * @param weights the weights for the classification results. If not provided, the size of the gold standard is used as weight.
+     */
+    fun calculateAverages(
         classificationResults: List<ClassificationResult>,
-        weights: List<Int>
-    ): ClassificationResult
+        weights: List<Int>? = null
+    ): List<AggregatedClassificationResult>
 }

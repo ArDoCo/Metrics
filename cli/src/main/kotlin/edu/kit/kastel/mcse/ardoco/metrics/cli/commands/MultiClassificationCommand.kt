@@ -14,7 +14,9 @@ import kotlinx.cli.required
 import java.io.File
 
 @OptIn(ExperimentalCli::class)
-class MultiClassificationCommand(private val outputFileOption: SingleNullableOption<String>) : Subcommand("multi", "Aggregate results of multiple classifications") {
+class MultiClassificationCommand(
+    private val outputFileOption: SingleNullableOption<String>
+) : Subcommand("multi", "Aggregate results of multiple classifications. I.e., Average + WeightedAverage") {
     private val directoryWithResultsOption by option(ArgType.String, shortName = "d", description = "The directory with the classification results").required()
 
     override fun execute() {
@@ -30,15 +32,13 @@ class MultiClassificationCommand(private val outputFileOption: SingleNullableOpt
             return
         }
         val classificationMetrics = ClassificationMetricsCalculator.Instance
-        val average = classificationMetrics.calculateAverage(results)
-        average.prettyPrint()
+        val average = classificationMetrics.calculateAverages(results)
+        average.forEach { it.prettyPrint() }
 
         val output = outputFileOption.value
         if (output != null) {
             val outputFile = File(output)
             oom.writeValue(outputFile, average)
         }
-
-        // TODO Weighted
     }
 }

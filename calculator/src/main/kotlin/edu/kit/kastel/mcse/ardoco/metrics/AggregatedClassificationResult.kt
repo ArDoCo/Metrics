@@ -1,25 +1,20 @@
 package edu.kit.kastel.mcse.ardoco.metrics
 
-data class ClassificationResult(
-    val tp: Int,
-    val fp: Int,
-    val fn: Int,
-    val tn: Int?,
+data class AggregatedClassificationResult(
+    val type: AggregationType,
     val precision: Double,
     val recall: Double,
     val f1: Double,
-    // Only if tn is available
     val accuracy: Double?,
     val specificity: Double?,
     val phiCoefficient: Double?,
     val phiCoefficientMax: Double?,
-    val phiOverPhiMax: Double?
+    val phiOverPhiMax: Double?,
+    val originalClassificationResults: List<ClassificationResult>,
+    val weights: List<Int>
 ) {
     fun prettyPrint() {
-        println("True Positives: $tp")
-        println("False Positives: $fp")
-        println("False Negatives: $fn")
-        println("True Negatives: ${tn ?: "N/A"}")
+        println("Type: $type")
         println("Precision: $precision")
         println("Recall: $recall")
         println("F1-Score: $f1")
@@ -29,4 +24,9 @@ data class ClassificationResult(
         if (phiCoefficientMax != null) println("Phi Coefficient Max: $phiCoefficientMax")
         if (phiOverPhiMax != null) println("Phi over Phi Max: $phiOverPhiMax")
     }
+}
+
+enum class AggregationType {
+    AVERAGE,
+    WEIGHTED_AVERAGE
 }

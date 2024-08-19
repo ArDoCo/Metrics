@@ -1,5 +1,7 @@
 package edu.kit.kastel.mcse.ardoco.metrics.internal
 
+import edu.kit.kastel.mcse.ardoco.metrics.AggregatedClassificationResult
+import edu.kit.kastel.mcse.ardoco.metrics.AggregationType
 import edu.kit.kastel.mcse.ardoco.metrics.ClassificationMetricsCalculator
 import edu.kit.kastel.mcse.ardoco.metrics.ClassificationResult
 import edu.kit.kastel.mcse.ardoco.metrics.calculateAccuracy
@@ -52,25 +54,90 @@ internal class ClassificationMetricsCalculatorImpl : ClassificationMetricsCalcul
         )
     }
 
-    override fun calculateAverage(classificationResults: Collection<ClassificationResult>): ClassificationResult {
-        val sum = classificationResults.reduce { acc, classificationResult -> acc.addToAll(classificationResult) }
-        val size = classificationResults.size
-        return sum.normalizeOnlyMetrics(size)
+    override fun calculateAverages(
+        classificationResults: List<ClassificationResult>,
+        weights: List<Int>?
+    ): List<AggregatedClassificationResult> {
+        val average = calculateAverage(classificationResults)
+
+        val weightsForAverage = weights ?: classificationResults.map { it.tp + it.fn }
+        val weightedAverage = calculateWeightedAverage(classificationResults, weightsForAverage, AggregationType.WEIGHTED_AVERAGE)
+
+        return listOf(average, weightedAverage)
     }
 
-    override fun calculateWeightedAverage(
+    private fun calculateAverage(classificationResults: List<ClassificationResult>): AggregatedClassificationResult {
+        return calculateWeightedAverage(classificationResults, classificationResults.map { 1 }, AggregationType.AVERAGE)
+    }
+
+    private fun calculateWeightedAverage(
         classificationResults: List<ClassificationResult>,
-        weights: List<Int>
-    ): ClassificationResult {
-        if (classificationResults.size != weights.size) {
-            throw IllegalArgumentException("The number of classification results and weights must be equal")
+        weights: List<Int>,
+        type: AggregationType
+    ): AggregatedClassificationResult {
+        if (classificationResults.isEmpty()) {
+            throw IllegalArgumentException("classificationResults must not be empty")
         }
 
-        val sum =
-            classificationResults.zip(weights) //
-                .map { (classificationResult, weight) -> classificationResult.timesOnlyMetrics(weight) }
-                .reduce { acc, classificationResult -> acc.addToAll(classificationResult) }
-        val allWeights = weights.sum()
-        return sum.normalizeOnlyMetrics(allWeights)
+        if (!classificationResults.all { (classificationResults[0].tn == null) == (it.tn == null) }) {
+            throw IllegalArgumentException("All classificationResults must have either all or no tn")
+        }
+
+        var precision = 0.0
+        var recall = 0.0
+        var f1 = 0.0
+        var accuracy = 0.0
+        var specificity = 0.0
+        var phiCoefficient = 0.0
+        var phiCoefficientMax = 0.0
+        var phiOverPhiMax = 0.0
+
+        var sumOfWeights = 0.0
+
+        for ((i, classificationResult) in classificationResults.withIndex()) {
+            precision += classificationResult.precision * weights[i]
+            recall += classificationResult.recall * weights[i]
+            f1 += classificationResult.f1 * weights[i]
+            accuracy += (classificationResult.accuracy ?: 0.0) * weights[i]
+            specificity += (classificationResult.specificity ?: 0.0) * weights[i]
+            phiCoefficient += (classificationResult.phiCoefficient ?: 0.0) * weights[i]
+            phiCoefficientMax += (classificationResult.phiCoefficientMax ?: 0.0) * weights[i]
+            phiOverPhiMax += (classificationResult.phiOverPhiMax ?: 0.0) * weights[i]
+
+            sumOfWeights += weights[i]
+        }
+
+        precision /= sumOfWeights
+        recall /= sumOfWeights
+        f1 /= sumOfWeights
+        accuracy /= sumOfWeights
+        specificity /= sumOfWeights
+        phiCoefficient /= sumOfWeights
+        phiCoefficientMax /= sumOfWeights
+        phiOverPhiMax /= sumOfWeights
+
+        if (classificationResults[0].tn == null) {
+            return AggregatedClassificationResult(
+                type,
+                precision,
+                recall,
+                f1,
+                null, null, null, null, null,
+                classificationResults, weights
+            )
+        } else {
+            return AggregatedClassificationResult(
+                type,
+                precision,
+                recall,
+                f1,
+                accuracy,
+                specificity,
+                phiCoefficient,
+                phiCoefficientMax,
+                phiOverPhiMax,
+                classificationResults, weights
+            )
+        }
     }
 }
