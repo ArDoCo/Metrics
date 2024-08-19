@@ -1,11 +1,11 @@
 package edu.kit.kastel.mcse.ardoco.metrics.result
 
 data class Result(
-    val classificationResult: ClassificationResult?
+    val singleClassificationResult: SingleClassificationResult?
 ) {
     fun prettyPrint() {
-        if (classificationResult != null) {
-            classificationResult.prettyPrint()
+        if (singleClassificationResult != null) {
+            singleClassificationResult.prettyPrint()
         } else {
             println("No classification result available")
         }

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import edu.kit.kastel.mcse.ardoco.metrics.RankMetricsCalculator
-import edu.kit.kastel.mcse.ardoco.metrics.result.RankMetricsResult
+import edu.kit.kastel.mcse.ardoco.metrics.result.SingleRankMetricsResult
 import kotlinx.cli.ArgType
 import kotlinx.cli.ExperimentalCli
 import kotlinx.cli.SingleNullableOption
@@ -30,7 +30,12 @@ class AggregationRankCommand(
             return
         }
         val oom = ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).registerKotlinModule()
-        val results: List<RankMetricsResult> = directory.listFiles()?.filter { it.isFile }?.map { oom.readValue(it.inputStream()) } ?: emptyList()
+        val results: List<SingleRankMetricsResult> =
+            directory.listFiles()?.filter { it.isFile }?.map {
+                oom.readValue(
+                    it.inputStream()
+                )
+            } ?: emptyList()
         if (results.isEmpty()) {
             println("No classification results found")
             return

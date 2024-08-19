@@ -2,7 +2,7 @@ package edu.kit.kastel.mcse.ardoco.metrics.rest.controller
 
 import edu.kit.kastel.mcse.ardoco.metrics.ClassificationMetricsCalculator
 import edu.kit.kastel.mcse.ardoco.metrics.result.AggregatedClassificationResult
-import edu.kit.kastel.mcse.ardoco.metrics.result.ClassificationResult
+import edu.kit.kastel.mcse.ardoco.metrics.result.SingleClassificationResult
 import io.swagger.v3.oas.annotations.Operation
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -23,7 +23,7 @@ class ClassificationMetricsController {
     @PostMapping
     fun calculateClassificationMetrics(
         @RequestBody body: ClassificationMetricsRequest
-    ): ClassificationResult {
+    ): SingleClassificationResult {
         val classificationMetricsCalculator = ClassificationMetricsCalculator.Instance
         val result = classificationMetricsCalculator.calculateMetrics(body.classification.toSet(), body.groundTruth.toSet(), body.confusionMatrixSum)
         return result

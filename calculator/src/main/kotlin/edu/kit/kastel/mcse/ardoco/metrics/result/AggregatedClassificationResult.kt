@@ -2,18 +2,18 @@ package edu.kit.kastel.mcse.ardoco.metrics.result
 
 data class AggregatedClassificationResult(
     val type: AggregationType,
-    val precision: Double,
-    val recall: Double,
-    val f1: Double,
-    val accuracy: Double?,
-    val specificity: Double?,
-    val phiCoefficient: Double?,
-    val phiCoefficientMax: Double?,
-    val phiOverPhiMax: Double?,
-    val originalClassificationResults: List<ClassificationResult>,
+    override val precision: Double,
+    override val recall: Double,
+    override val f1: Double,
+    override val accuracy: Double?,
+    override val specificity: Double?,
+    override val phiCoefficient: Double?,
+    override val phiCoefficientMax: Double?,
+    override val phiOverPhiMax: Double?,
+    val originalSingleClassificationResults: List<SingleClassificationResult>,
     val weights: List<Int>?
-) {
-    fun prettyPrint() {
+) : ClassificationResult {
+    override fun prettyPrint() {
         println("Type: $type")
         println("Precision: $precision")
         println("Recall: $recall")
@@ -26,21 +26,21 @@ data class AggregatedClassificationResult(
     }
 
     constructor(
-        classificationResult: ClassificationResult,
+        singleClassificationResult: SingleClassificationResult,
         type: AggregationType,
-        originalClassificationResults: List<ClassificationResult>,
+        originalSingleClassificationResults: List<SingleClassificationResult>,
         weights: List<Int>?
     ) : this(
         type,
-        classificationResult.precision,
-        classificationResult.recall,
-        classificationResult.f1,
-        classificationResult.accuracy,
-        classificationResult.specificity,
-        classificationResult.phiCoefficient,
-        classificationResult.phiCoefficientMax,
-        classificationResult.phiOverPhiMax,
-        originalClassificationResults,
+        singleClassificationResult.precision,
+        singleClassificationResult.recall,
+        singleClassificationResult.f1,
+        singleClassificationResult.accuracy,
+        singleClassificationResult.specificity,
+        singleClassificationResult.phiCoefficient,
+        singleClassificationResult.phiCoefficientMax,
+        singleClassificationResult.phiOverPhiMax,
+        originalSingleClassificationResults,
         weights
     )
 }

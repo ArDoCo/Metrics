@@ -1,8 +1,8 @@
 package edu.kit.kastel.mcse.ardoco.metrics.rest.controller
 
 import edu.kit.kastel.mcse.ardoco.metrics.RankMetricsCalculator
-import edu.kit.kastel.mcse.ardoco.metrics.result.AggregatedRankResult
-import edu.kit.kastel.mcse.ardoco.metrics.result.RankMetricsResult
+import edu.kit.kastel.mcse.ardoco.metrics.result.AggregatedRankMetricsResult
+import edu.kit.kastel.mcse.ardoco.metrics.result.SingleRankMetricsResult
 import io.swagger.v3.oas.annotations.Operation
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -23,7 +23,7 @@ class RankMetricsController {
     @PostMapping
     fun calculateClassificationMetrics(
         @RequestBody body: RankMetricsRequest
-    ): RankMetricsResult {
+    ): SingleRankMetricsResult {
         val rankMetricsCalculator = RankMetricsCalculator.Instance
         val result = rankMetricsCalculator.calculateMetrics(body.rankedResults, body.groundTruth)
         return result
@@ -53,7 +53,7 @@ class RankMetricsController {
     )
 
     data class AverageRankMetricsResponse(
-        val classificationResults: List<AggregatedRankResult>
+        val classificationResults: List<AggregatedRankMetricsResult>
     )
 
     data class RankMetricsRequest(

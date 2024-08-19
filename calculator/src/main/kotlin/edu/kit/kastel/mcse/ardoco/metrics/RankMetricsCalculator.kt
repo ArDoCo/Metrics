@@ -1,8 +1,8 @@
 package edu.kit.kastel.mcse.ardoco.metrics
 
 import edu.kit.kastel.mcse.ardoco.metrics.internal.RankMetricsCalculatorImpl
-import edu.kit.kastel.mcse.ardoco.metrics.result.AggregatedRankResult
-import edu.kit.kastel.mcse.ardoco.metrics.result.RankMetricsResult
+import edu.kit.kastel.mcse.ardoco.metrics.result.AggregatedRankMetricsResult
+import edu.kit.kastel.mcse.ardoco.metrics.result.SingleRankMetricsResult
 
 interface RankMetricsCalculator {
     companion object {
@@ -14,7 +14,7 @@ interface RankMetricsCalculator {
         rankedResults: List<List<T>>,
         groundTruth: Set<T>,
         stringProvider: (T) -> String
-    ): RankMetricsResult {
+    ): SingleRankMetricsResult {
         return calculateMetrics(
             rankedResults.map { id -> id.map { stringProvider(it) } },
             groundTruth.map { stringProvider(it) }.toSet()
@@ -24,15 +24,16 @@ interface RankMetricsCalculator {
     fun calculateMetrics(
         rankedResults: List<List<String>>,
         groundTruth: Set<String>
-    ): RankMetricsResult
+    ): SingleRankMetricsResult
 
     /**
      * Calculates the averages of the given rank results.
-     * @param rankMetricsResults the rank results
+     * @param singleRankMetricsResults the rank results
      * @param weights the weights for the rank results. If not provided, the size of the gold standard is used as weight.
      */
+
     fun calculateAverages(
-        rankMetricsResults: List<RankMetricsResult>,
+        singleRankMetricsResults: List<SingleRankMetricsResult>,
         weights: List<Int>? = null
-    ): List<AggregatedRankResult>
+    ): List<AggregatedRankMetricsResult>
 }

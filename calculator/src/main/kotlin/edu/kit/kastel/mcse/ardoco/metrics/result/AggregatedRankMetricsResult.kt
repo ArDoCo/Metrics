@@ -1,13 +1,13 @@
 package edu.kit.kastel.mcse.ardoco.metrics.result
 
-data class AggregatedRankResult(
+data class AggregatedRankMetricsResult(
     val type: AggregationType,
-    val map: Double,
-    val lag: Double,
-    val originalRankResults: List<RankMetricsResult>,
+    override val map: Double,
+    override val lag: Double,
+    val originalRankResults: List<SingleRankMetricsResult>,
     val weights: List<Int>
-) {
-    fun prettyPrint() {
+) : RankMetricsResult {
+    override fun prettyPrint() {
         println("Type: $type")
         println("Mean Average Precision: $map")
         println("Lag: $lag")
