@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import edu.kit.kastel.mcse.ardoco.metrics.ClassificationMetricsCalculator
-import edu.kit.kastel.mcse.ardoco.metrics.ClassificationResult
+import edu.kit.kastel.mcse.ardoco.metrics.result.ClassificationResult
 import kotlinx.cli.ArgType
 import kotlinx.cli.ExperimentalCli
 import kotlinx.cli.SingleNullableOption
@@ -14,10 +14,14 @@ import kotlinx.cli.required
 import java.io.File
 
 @OptIn(ExperimentalCli::class)
-class MultiClassificationCommand(
+class AggregationClassificationCommand(
     private val outputFileOption: SingleNullableOption<String>
-) : Subcommand("multi", "Aggregate results of multiple classifications. I.e., Average + WeightedAverage") {
-    private val directoryWithResultsOption by option(ArgType.String, shortName = "d", description = "The directory with the classification results").required()
+) : Subcommand("aggCl", "Aggregate results of multiple classifications. I.e., Macro Average + WeightedAverage + Micro Average") {
+    private val directoryWithResultsOption by option(
+        ArgType.String,
+        shortName = "d",
+        description = "The directory with the classification results"
+    ).required()
 
     override fun execute() {
         val directory = File(directoryWithResultsOption)

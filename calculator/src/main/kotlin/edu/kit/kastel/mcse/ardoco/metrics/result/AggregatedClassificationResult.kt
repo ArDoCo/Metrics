@@ -1,4 +1,4 @@
-package edu.kit.kastel.mcse.ardoco.metrics
+package edu.kit.kastel.mcse.ardoco.metrics.result
 
 data class AggregatedClassificationResult(
     val type: AggregationType,
@@ -25,7 +25,12 @@ data class AggregatedClassificationResult(
         if (phiOverPhiMax != null) println("Phi over Phi Max: $phiOverPhiMax")
     }
 
-    constructor(classificationResult: ClassificationResult, type: AggregationType, originalClassificationResults: List<ClassificationResult>, weights: List<Int>?) : this(
+    constructor(
+        classificationResult: ClassificationResult,
+        type: AggregationType,
+        originalClassificationResults: List<ClassificationResult>,
+        weights: List<Int>?
+    ) : this(
         type,
         classificationResult.precision,
         classificationResult.recall,
@@ -38,10 +43,4 @@ data class AggregatedClassificationResult(
         originalClassificationResults,
         weights
     )
-}
-
-enum class AggregationType {
-    MACRO_AVERAGE,
-    WEIGHTED_AVERAGE,
-    MICRO_AVERAGE
 }

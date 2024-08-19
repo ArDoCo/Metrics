@@ -1,4 +1,4 @@
-package edu.kit.kastel.mcse.ardoco.metrics
+package edu.kit.kastel.mcse.ardoco.metrics.result
 
 data class ClassificationResult(
     val tp: Int,

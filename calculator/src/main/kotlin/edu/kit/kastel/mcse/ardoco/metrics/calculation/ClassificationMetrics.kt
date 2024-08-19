@@ -1,4 +1,4 @@
-package edu.kit.kastel.mcse.ardoco.metrics
+package edu.kit.kastel.mcse.ardoco.metrics.calculation
 
 import java.math.BigDecimal
 import java.math.MathContext

@@ -1,6 +1,8 @@
 package edu.kit.kastel.mcse.ardoco.metrics
 
 import edu.kit.kastel.mcse.ardoco.metrics.internal.RankMetricsCalculatorImpl
+import edu.kit.kastel.mcse.ardoco.metrics.result.AggregatedRankResult
+import edu.kit.kastel.mcse.ardoco.metrics.result.RankMetricsResult
 
 interface RankMetricsCalculator {
     companion object {
@@ -23,4 +25,14 @@ interface RankMetricsCalculator {
         rankedResults: List<List<String>>,
         groundTruth: Set<String>
     ): RankMetricsResult
+
+    /**
+     * Calculates the averages of the given rank results.
+     * @param rankMetricsResults the rank results
+     * @param weights the weights for the rank results. If not provided, the size of the gold standard is used as weight.
+     */
+    fun calculateAverages(
+        rankMetricsResults: List<RankMetricsResult>,
+        weights: List<Int>? = null
+    ): List<AggregatedRankResult>
 }

@@ -1,8 +1,8 @@
 package edu.kit.kastel.mcse.ardoco.metrics.rest.controller
 
-import edu.kit.kastel.mcse.ardoco.metrics.AggregatedClassificationResult
 import edu.kit.kastel.mcse.ardoco.metrics.ClassificationMetricsCalculator
-import edu.kit.kastel.mcse.ardoco.metrics.ClassificationResult
+import edu.kit.kastel.mcse.ardoco.metrics.result.AggregatedClassificationResult
+import edu.kit.kastel.mcse.ardoco.metrics.result.ClassificationResult
 import io.swagger.v3.oas.annotations.Operation
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -37,7 +37,10 @@ class ClassificationMetricsController {
         val classificationMetricsCalculator = ClassificationMetricsCalculator.Instance
 
         val requests = body.classificationMetricsRequests
-        val results = requests.map { classificationMetricsCalculator.calculateMetrics(it.classification.toSet(), it.groundTruth.toSet(), it.confusionMatrixSum) }
+        val results =
+            requests.map {
+                classificationMetricsCalculator.calculateMetrics(it.classification.toSet(), it.groundTruth.toSet(), it.confusionMatrixSum)
+            }
 
         val averages = classificationMetricsCalculator.calculateAverages(results, body.weights)
 

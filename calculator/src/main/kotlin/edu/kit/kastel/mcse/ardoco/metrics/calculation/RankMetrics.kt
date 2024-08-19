@@ -1,4 +1,4 @@
-package edu.kit.kastel.mcse.ardoco.metrics
+package edu.kit.kastel.mcse.ardoco.metrics.calculation
 
 /**
  * Calculates the rank metrics for a given set of ranked results and ground truth.

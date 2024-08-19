@@ -1,17 +1,17 @@
 package edu.kit.kastel.mcse.ardoco.metrics.internal
 
-import edu.kit.kastel.mcse.ardoco.metrics.AggregatedClassificationResult
-import edu.kit.kastel.mcse.ardoco.metrics.AggregationType
 import edu.kit.kastel.mcse.ardoco.metrics.ClassificationMetricsCalculator
-import edu.kit.kastel.mcse.ardoco.metrics.ClassificationResult
-import edu.kit.kastel.mcse.ardoco.metrics.calculateAccuracy
-import edu.kit.kastel.mcse.ardoco.metrics.calculateF1
-import edu.kit.kastel.mcse.ardoco.metrics.calculatePhiCoefficient
-import edu.kit.kastel.mcse.ardoco.metrics.calculatePhiCoefficientMax
-import edu.kit.kastel.mcse.ardoco.metrics.calculatePhiOverPhiMax
-import edu.kit.kastel.mcse.ardoco.metrics.calculatePrecision
-import edu.kit.kastel.mcse.ardoco.metrics.calculateRecall
-import edu.kit.kastel.mcse.ardoco.metrics.calculateSpecificity
+import edu.kit.kastel.mcse.ardoco.metrics.calculation.calculateAccuracy
+import edu.kit.kastel.mcse.ardoco.metrics.calculation.calculateF1
+import edu.kit.kastel.mcse.ardoco.metrics.calculation.calculatePhiCoefficient
+import edu.kit.kastel.mcse.ardoco.metrics.calculation.calculatePhiCoefficientMax
+import edu.kit.kastel.mcse.ardoco.metrics.calculation.calculatePhiOverPhiMax
+import edu.kit.kastel.mcse.ardoco.metrics.calculation.calculatePrecision
+import edu.kit.kastel.mcse.ardoco.metrics.calculation.calculateRecall
+import edu.kit.kastel.mcse.ardoco.metrics.calculation.calculateSpecificity
+import edu.kit.kastel.mcse.ardoco.metrics.result.AggregatedClassificationResult
+import edu.kit.kastel.mcse.ardoco.metrics.result.AggregationType
+import edu.kit.kastel.mcse.ardoco.metrics.result.ClassificationResult
 
 internal class ClassificationMetricsCalculatorImpl : ClassificationMetricsCalculator {
     override fun calculateMetrics(
@@ -71,7 +71,7 @@ internal class ClassificationMetricsCalculatorImpl : ClassificationMetricsCalcul
 
         val weightsForAverage = weights ?: classificationResults.map { it.tp + it.fn }
         val weightedAverage = calculateWeightedAverage(classificationResults, weightsForAverage, AggregationType.WEIGHTED_AVERAGE)
-        
+
         val microAverage = calculateMicroAverage(classificationResults)
 
         return listOf(macroAverage, weightedAverage, microAverage)
@@ -85,22 +85,21 @@ internal class ClassificationMetricsCalculatorImpl : ClassificationMetricsCalcul
         if (!classificationResults.all { (classificationResults[0].tn == null) == (it.tn == null) }) {
             throw IllegalArgumentException("All classificationResults must have either all or no tn")
         }
-        
+
         var tp = 0
         var fp = 0
         var fn = 0
         var tn = 0
-        
+
         for (classificationResult in classificationResults) {
             tp += classificationResult.tp
             fp += classificationResult.fp
             fn += classificationResult.fn
-            tn += classificationResult.tn?:0
+            tn += classificationResult.tn ?: 0
         }
 
         val result = calculateMetrics(tp, fp, fn, tn)
         return AggregatedClassificationResult(result, AggregationType.MICRO_AVERAGE, classificationResults, null)
-
     }
 
     private fun calculateMacroAverage(classificationResults: List<ClassificationResult>): AggregatedClassificationResult {

@@ -1,6 +1,8 @@
 package edu.kit.kastel.mcse.ardoco.metrics
 
 import edu.kit.kastel.mcse.ardoco.metrics.internal.ClassificationMetricsCalculatorImpl
+import edu.kit.kastel.mcse.ardoco.metrics.result.AggregatedClassificationResult
+import edu.kit.kastel.mcse.ardoco.metrics.result.ClassificationResult
 
 interface ClassificationMetricsCalculator {
     companion object {
