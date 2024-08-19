@@ -22,16 +22,25 @@ internal class ClassificationMetricsCalculatorImpl : ClassificationMetricsCalcul
         val tp = classification.intersect(groundTruth).size
         val fp = classification.size - tp
         val fn = groundTruth.size - tp
+        val tn = confusionMatrixSum?.let { sum -> sum - (tp + fp + fn) }
 
+        return calculateMetrics(tp, fp, fn, tn)
+    }
+
+    private fun calculateMetrics(
+        tp: Int,
+        fp: Int,
+        fn: Int,
+        tn: Int?
+    ): ClassificationResult {
         val precision = calculatePrecision(tp, fp)
         val recall = calculateRecall(tp, fn)
         val f1 = calculateF1(precision, recall)
 
-        if (confusionMatrixSum == null) {
+        if (tn == null) {
             return ClassificationResult(tp, fp, fn, null, precision, recall, f1, null, null, null, null, null)
         }
 
-        val tn = confusionMatrixSum - (tp + fp + fn)
         val accuracy = calculateAccuracy(tp, fp, fn, tn)
         val specificity = calculateSpecificity(tn, fp)
         val phiCoefficient = calculatePhiCoefficient(tp, fp, fn, tn)
@@ -58,16 +67,44 @@ internal class ClassificationMetricsCalculatorImpl : ClassificationMetricsCalcul
         classificationResults: List<ClassificationResult>,
         weights: List<Int>?
     ): List<AggregatedClassificationResult> {
-        val average = calculateAverage(classificationResults)
+        val macroAverage = calculateMacroAverage(classificationResults)
 
         val weightsForAverage = weights ?: classificationResults.map { it.tp + it.fn }
         val weightedAverage = calculateWeightedAverage(classificationResults, weightsForAverage, AggregationType.WEIGHTED_AVERAGE)
+        
+        val microAverage = calculateMicroAverage(classificationResults)
 
-        return listOf(average, weightedAverage)
+        return listOf(macroAverage, weightedAverage, microAverage)
     }
 
-    private fun calculateAverage(classificationResults: List<ClassificationResult>): AggregatedClassificationResult {
-        return calculateWeightedAverage(classificationResults, classificationResults.map { 1 }, AggregationType.AVERAGE)
+    private fun calculateMicroAverage(classificationResults: List<ClassificationResult>): AggregatedClassificationResult {
+        if (classificationResults.isEmpty()) {
+            throw IllegalArgumentException("classificationResults must not be empty")
+        }
+
+        if (!classificationResults.all { (classificationResults[0].tn == null) == (it.tn == null) }) {
+            throw IllegalArgumentException("All classificationResults must have either all or no tn")
+        }
+        
+        var tp = 0
+        var fp = 0
+        var fn = 0
+        var tn = 0
+        
+        for (classificationResult in classificationResults) {
+            tp += classificationResult.tp
+            fp += classificationResult.fp
+            fn += classificationResult.fn
+            tn += classificationResult.tn?:0
+        }
+
+        val result = calculateMetrics(tp, fp, fn, tn)
+        return AggregatedClassificationResult(result, AggregationType.MICRO_AVERAGE, classificationResults, null)
+
+    }
+
+    private fun calculateMacroAverage(classificationResults: List<ClassificationResult>): AggregatedClassificationResult {
+        return calculateWeightedAverage(classificationResults, classificationResults.map { 1 }, AggregationType.MACRO_AVERAGE)
     }
 
     private fun calculateWeightedAverage(

@@ -11,7 +11,7 @@ data class AggregatedClassificationResult(
     val phiCoefficientMax: Double?,
     val phiOverPhiMax: Double?,
     val originalClassificationResults: List<ClassificationResult>,
-    val weights: List<Int>
+    val weights: List<Int>?
 ) {
     fun prettyPrint() {
         println("Type: $type")
@@ -24,9 +24,24 @@ data class AggregatedClassificationResult(
         if (phiCoefficientMax != null) println("Phi Coefficient Max: $phiCoefficientMax")
         if (phiOverPhiMax != null) println("Phi over Phi Max: $phiOverPhiMax")
     }
+
+    constructor(classificationResult: ClassificationResult, type: AggregationType, originalClassificationResults: List<ClassificationResult>, weights: List<Int>?) : this(
+        type,
+        classificationResult.precision,
+        classificationResult.recall,
+        classificationResult.f1,
+        classificationResult.accuracy,
+        classificationResult.specificity,
+        classificationResult.phiCoefficient,
+        classificationResult.phiCoefficientMax,
+        classificationResult.phiOverPhiMax,
+        originalClassificationResults,
+        weights
+    )
 }
 
 enum class AggregationType {
-    AVERAGE,
-    WEIGHTED_AVERAGE
+    MACRO_AVERAGE,
+    WEIGHTED_AVERAGE,
+    MICRO_AVERAGE
 }
