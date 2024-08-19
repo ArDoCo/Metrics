@@ -309,6 +309,12 @@
               <goal>compile</goal>
             </goals>
             <phase>compile</phase>
+            <configuration>
+              <jvmTarget>${java.version}</jvmTarget>
+              <args>
+                <arg>-java-parameters</arg>
+              </args>
+            </configuration>
           </execution>
           <execution>
             <id>test-compile</id>
