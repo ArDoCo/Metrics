@@ -11,9 +11,4 @@ data class SingleRankMetricsResult(
     override val map: Double,
     override val lag: Double,
     val groundTruthSize: Int
-) : RankMetricsResult {
-    override fun prettyPrint() {
-        println("Mean Average Precision: $map")
-        println("Lag: $lag")
-    }
-}
+) : RankMetricsResult
