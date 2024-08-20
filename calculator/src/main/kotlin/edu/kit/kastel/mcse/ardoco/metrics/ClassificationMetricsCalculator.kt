@@ -15,7 +15,7 @@ interface ClassificationMetricsCalculator {
         groundTruth: Set<T>,
         stringProvider: (T) -> String,
         confusionMatrixSum: Int?
-    ): SingleClassificationResult {
+    ): SingleClassificationResult<String> {
         return calculateMetrics(
             classification.map { stringProvider(it) }.toSet(),
             groundTruth.map { stringProvider(it) }.toSet(),
@@ -23,11 +23,11 @@ interface ClassificationMetricsCalculator {
         )
     }
 
-    fun calculateMetrics(
-        classification: Set<String>,
-        groundTruth: Set<String>,
+    fun <T> calculateMetrics(
+        classification: Set<T>,
+        groundTruth: Set<T>,
         confusionMatrixSum: Int?
-    ): SingleClassificationResult
+    ): SingleClassificationResult<T>
 
     /**
      * Calculates the averages of the given classification results.
@@ -35,7 +35,7 @@ interface ClassificationMetricsCalculator {
      * @param weights the weights for the classification results. If not provided, the size of the gold standard is used as weight.
      */
     fun calculateAverages(
-        singleClassificationResults: List<SingleClassificationResult>,
+        singleClassificationResults: List<SingleClassificationResult<*>>,
         weights: List<Int>? = null
     ): List<AggregatedClassificationResult>
 }

@@ -1,9 +1,9 @@
 package edu.kit.kastel.mcse.ardoco.metrics.result
 
-data class SingleClassificationResult(
-    val tp: Int,
-    val fp: Int,
-    val fn: Int,
+data class SingleClassificationResult<T>(
+    val tp: Set<T>,
+    val fp: Set<T>,
+    val fn: Set<T>,
     val tn: Int?,
     override val precision: Double,
     override val recall: Double,
@@ -16,9 +16,9 @@ data class SingleClassificationResult(
     override val phiOverPhiMax: Double?
 ) : ClassificationResult {
     override fun prettyPrint() {
-        println("True Positives: $tp")
-        println("False Positives: $fp")
-        println("False Negatives: $fn")
+        println("True Positives: ${tp.size}")
+        println("False Positives: ${fp.size}")
+        println("False Negatives: ${fn.size}")
         println("True Negatives: ${tn ?: "N/A"}")
         println("Precision: $precision")
         println("Recall: $recall")

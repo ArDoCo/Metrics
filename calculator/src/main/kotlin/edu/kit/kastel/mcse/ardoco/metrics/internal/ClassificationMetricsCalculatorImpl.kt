@@ -14,17 +14,31 @@ import edu.kit.kastel.mcse.ardoco.metrics.result.AggregationType
 import edu.kit.kastel.mcse.ardoco.metrics.result.SingleClassificationResult
 
 internal class ClassificationMetricsCalculatorImpl : ClassificationMetricsCalculator {
-    override fun calculateMetrics(
-        classification: Set<String>,
-        groundTruth: Set<String>,
+    override fun <T> calculateMetrics(
+        classification: Set<T>,
+        groundTruth: Set<T>,
         confusionMatrixSum: Int?
-    ): SingleClassificationResult {
-        val tp = classification.intersect(groundTruth).size
-        val fp = classification.size - tp
-        val fn = groundTruth.size - tp
-        val tn = confusionMatrixSum?.let { sum -> sum - (tp + fp + fn) }
+    ): SingleClassificationResult<T> {
+        val tp = classification.intersect(groundTruth)
+        val fp = classification.filter { !groundTruth.contains(it) }.toSet()
+        val fn = groundTruth.filter { !classification.contains(it) }.toSet()
+        val tn = confusionMatrixSum?.let { sum -> sum - (tp.size + fp.size + fn.size) }
 
-        return calculateMetrics(tp, fp, fn, tn)
+        val intermediateMetrics = calculateMetrics(tp.size, fp.size, fn.size, tn)
+        return SingleClassificationResult(
+            tp,
+            fp,
+            fn,
+            tn,
+            intermediateMetrics.precision,
+            intermediateMetrics.recall,
+            intermediateMetrics.f1,
+            intermediateMetrics.accuracy,
+            intermediateMetrics.specificity,
+            intermediateMetrics.phiCoefficient,
+            intermediateMetrics.phiCoefficientMax,
+            intermediateMetrics.phiOverPhiMax
+        )
     }
 
     private fun calculateMetrics(
@@ -32,13 +46,13 @@ internal class ClassificationMetricsCalculatorImpl : ClassificationMetricsCalcul
         fp: Int,
         fn: Int,
         tn: Int?
-    ): SingleClassificationResult {
+    ): SingleClassificationResult<Nothing> {
         val precision = calculatePrecision(tp, fp)
         val recall = calculateRecall(tp, fn)
         val f1 = calculateF1(precision, recall)
 
         if (tn == null) {
-            return SingleClassificationResult(tp, fp, fn, null, precision, recall, f1, null, null, null, null, null)
+            return SingleClassificationResult(setOf(), setOf(), setOf(), null, precision, recall, f1, null, null, null, null, null)
         }
 
         val accuracy = calculateAccuracy(tp, fp, fn, tn)
@@ -48,9 +62,9 @@ internal class ClassificationMetricsCalculatorImpl : ClassificationMetricsCalcul
         val phiOverPhiMax = calculatePhiOverPhiMax(tp, fp, fn, tn)
 
         return SingleClassificationResult(
-            tp,
-            fp,
-            fn,
+            setOf(),
+            setOf(),
+            setOf(),
             tn,
             precision,
             recall,
@@ -64,12 +78,12 @@ internal class ClassificationMetricsCalculatorImpl : ClassificationMetricsCalcul
     }
 
     override fun calculateAverages(
-        singleClassificationResults: List<SingleClassificationResult>,
+        singleClassificationResults: List<SingleClassificationResult<*>>,
         weights: List<Int>?
     ): List<AggregatedClassificationResult> {
         val macroAverage = calculateMacroAverage(singleClassificationResults)
 
-        val weightsForAverage = weights ?: singleClassificationResults.map { it.tp + it.fn }
+        val weightsForAverage = weights ?: singleClassificationResults.map { it.tp.size + it.fn.size }
         val weightedAverage = calculateWeightedAverage(singleClassificationResults, weightsForAverage, AggregationType.WEIGHTED_AVERAGE)
 
         val microAverage = calculateMicroAverage(singleClassificationResults)
@@ -77,7 +91,7 @@ internal class ClassificationMetricsCalculatorImpl : ClassificationMetricsCalcul
         return listOf(macroAverage, weightedAverage, microAverage)
     }
 
-    private fun calculateMicroAverage(singleClassificationResults: List<SingleClassificationResult>): AggregatedClassificationResult {
+    private fun calculateMicroAverage(singleClassificationResults: List<SingleClassificationResult<*>>): AggregatedClassificationResult {
         if (singleClassificationResults.isEmpty()) {
             throw IllegalArgumentException("classificationResults must not be empty")
         }
@@ -89,25 +103,27 @@ internal class ClassificationMetricsCalculatorImpl : ClassificationMetricsCalcul
         var tp = 0
         var fp = 0
         var fn = 0
-        var tn = 0
+        var tn: Int? = if (singleClassificationResults[0].tn != null) 0 else null
 
         for (classificationResult in singleClassificationResults) {
-            tp += classificationResult.tp
-            fp += classificationResult.fp
-            fn += classificationResult.fn
-            tn += classificationResult.tn ?: 0
+            tp += classificationResult.tp.size
+            fp += classificationResult.fp.size
+            fn += classificationResult.fn.size
+            if (tn != null) {
+                tn += classificationResult.tn!!
+            }
         }
 
         val result = calculateMetrics(tp, fp, fn, tn)
         return AggregatedClassificationResult(result, AggregationType.MICRO_AVERAGE, singleClassificationResults, null)
     }
 
-    private fun calculateMacroAverage(singleClassificationResults: List<SingleClassificationResult>): AggregatedClassificationResult {
+    private fun calculateMacroAverage(singleClassificationResults: List<SingleClassificationResult<*>>): AggregatedClassificationResult {
         return calculateWeightedAverage(singleClassificationResults, singleClassificationResults.map { 1 }, AggregationType.MACRO_AVERAGE)
     }
 
     private fun calculateWeightedAverage(
-        singleClassificationResults: List<SingleClassificationResult>,
+        singleClassificationResults: List<SingleClassificationResult<*>>,
         weights: List<Int>,
         type: AggregationType
     ): AggregatedClassificationResult {

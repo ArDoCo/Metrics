@@ -10,7 +10,7 @@ data class AggregatedClassificationResult(
     override val phiCoefficient: Double?,
     override val phiCoefficientMax: Double?,
     override val phiOverPhiMax: Double?,
-    val originalSingleClassificationResults: List<SingleClassificationResult>,
+    val originalSingleClassificationResults: List<SingleClassificationResult<*>>,
     val weights: List<Int>?
 ) : ClassificationResult {
     override fun prettyPrint() {
@@ -26,9 +26,9 @@ data class AggregatedClassificationResult(
     }
 
     constructor(
-        singleClassificationResult: SingleClassificationResult,
+        singleClassificationResult: SingleClassificationResult<*>,
         type: AggregationType,
-        originalSingleClassificationResults: List<SingleClassificationResult>,
+        originalSingleClassificationResults: List<SingleClassificationResult<*>>,
         weights: List<Int>?
     ) : this(
         type,

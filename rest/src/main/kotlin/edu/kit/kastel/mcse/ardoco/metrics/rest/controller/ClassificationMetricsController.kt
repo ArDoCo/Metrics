@@ -23,7 +23,7 @@ class ClassificationMetricsController {
     @PostMapping
     fun calculateClassificationMetrics(
         @RequestBody body: ClassificationMetricsRequest
-    ): SingleClassificationResult {
+    ): SingleClassificationResult<String> {
         val classificationMetricsCalculator = ClassificationMetricsCalculator.Instance
         val result = classificationMetricsCalculator.calculateMetrics(body.classification.toSet(), body.groundTruth.toSet(), body.confusionMatrixSum)
         return result

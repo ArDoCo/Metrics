@@ -30,7 +30,7 @@ class AggregationClassificationCommand(
             return
         }
         val oom = ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).registerKotlinModule()
-        val results: List<SingleClassificationResult> =
+        val results: List<SingleClassificationResult<String>> =
             directory.listFiles()?.filter { it.isFile }?.map {
                 oom.readValue(
                     it.inputStream()
