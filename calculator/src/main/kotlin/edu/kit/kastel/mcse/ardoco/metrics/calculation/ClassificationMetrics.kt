@@ -140,6 +140,11 @@ fun calculatePhiCoefficientMax(
     val test = fn.add(tp) >= fp.add(tp)
     val nominator = fp.add(tn).multiply(tp.add(fp)).sqrt(MathContext.DECIMAL128)
     val denominator = fn.add(tn).multiply(tp.add(fn)).sqrt(MathContext.DECIMAL128)
+
+    if (denominator == BigDecimal.ZERO) {
+        return 0.0
+    }
+
     return if (test) {
         // standard case
         nominator.divide(denominator, MathContext.DECIMAL128).toDouble()
@@ -167,5 +172,8 @@ fun calculatePhiOverPhiMax(
 ): Double {
     val phi = calculatePhiCoefficient(truePositives, falsePositives, falseNegatives, trueNegatives)
     val phiMax = calculatePhiCoefficientMax(truePositives, falsePositives, falseNegatives, trueNegatives)
+    if (phiMax == 0.0) {
+        return 0.0
+    }
     return phi / phiMax
 }
