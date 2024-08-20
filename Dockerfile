@@ -9,6 +9,7 @@ FROM eclipse-temurin:21-jre
 
 ENV TZ=Europe/Berlin
 
+USER ardoco
 WORKDIR /metrics
 COPY --from=builder /metrics/rest/target/rest-*.jar rest.jar
 
