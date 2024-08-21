@@ -39,11 +39,14 @@ fun calculateMAP(
     groundTruth: Set<String>
 ): Double {
     var map = 0.0
+    var numberOfGroundTruthSourceArtifacts = 0
     for (rankedResult in rankedResults) {
-        map += calculateAP(rankedResult, groundTruth)
+        val ap = calculateAP(rankedResult, groundTruth)
+        if (ap > 0) numberOfGroundTruthSourceArtifacts++
+        map += ap
     }
 
-    return map / groundTruth.size
+    return map / numberOfGroundTruthSourceArtifacts
 }
 
 /**
