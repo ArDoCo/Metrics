@@ -8,7 +8,8 @@ package edu.kit.kastel.mcse.ardoco.metrics.calculation
  * @return The average precision for the query.
  */
 fun calculateAP(
-    similarityList: List<String>, groundTruth: Set<String>
+    similarityList: List<String>,
+    groundTruth: Set<String>
 ): Double {
     var relevantLinksAtK = 0
     var ap = 0.0
@@ -34,7 +35,8 @@ fun calculateAP(
  * @return The mean average precision for the queries.
  */
 fun calculateMAP(
-    rankedResults: Collection<List<String>>, groundTruth: Set<String>
+    rankedResults: Collection<List<String>>,
+    groundTruth: Set<String>
 ): Double {
     var map = 0.0
     for (rankedResult in rankedResults) {
@@ -52,7 +54,8 @@ fun calculateMAP(
  * @return The lag for the queries.
  */
 fun calculateLAG(
-    rankedResults: List<List<String>>, groundTruth: Set<String>
+    rankedResults: List<List<String>>,
+    groundTruth: Set<String>
 ): Double {
     var totalRelevantLinks = 0
     var lagSum = 0
@@ -77,7 +80,9 @@ fun calculateLAG(
  * @param groundTruth The ground truth for the queries.
  */
 fun calculateAUC(
-    rankedResults: List<List<String>>, rankedRelevances: List<List<Double>>, groundTruth: Set<String>
+    rankedResults: List<List<String>>,
+    rankedRelevances: List<List<Double>>,
+    groundTruth: Set<String>
 ): Double {
     require(rankedResults.size == rankedRelevances.size) {
         "Results and relevance lists must have the same size."
@@ -118,7 +123,8 @@ fun calculateAUC(
  * @throws IllegalArgumentException if the sizes of `relevances` and `isTPLabels` do not match.
  */
 fun calculateROC(
-    relevances: List<Double>, isTPLabels: List<Boolean>
+    relevances: List<Double>,
+    isTPLabels: List<Boolean>
 ): List<DoubleArray> {
     require(relevances.size == isTPLabels.size) { "Relevances and labels must have the same length" }
 

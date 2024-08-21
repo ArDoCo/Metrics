@@ -18,9 +18,13 @@ interface RankMetricsResult {
     /** LAG Metric */
     val lag: Double
 
+    /** Area under curve of the receiver operating characteristic */
+    val auc: Double?
+
     /** Prints the result in a human-readable format to the logger. */
     fun prettyPrint() {
         logger.info("Mean Average Precision: $map")
         logger.info("Lag: $lag")
+        if (auc != null) logger.info("Auc: $auc")
     }
 }

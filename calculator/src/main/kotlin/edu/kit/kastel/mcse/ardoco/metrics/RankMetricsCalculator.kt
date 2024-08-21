@@ -18,19 +18,26 @@ interface RankMetricsCalculator {
 
     /**
      * Calculates the metrics for the given ranked results.
-     * @param rankedResults the ranked results //TODO info about the format
+     * @param rankedResults the ranked results as a list of sorted lists (most relevant artifacts first). Each list represents one query of a source artifact.
      * @param groundTruth the ground truth
      * @param stringProvider a function to convert the ranked results and ground truth to strings
+     * @param rankedRelevances An optional list of lists representing the relevance scores associated with each ranked result.
+     *                         If provided, this list must correspond to `rankedResults` in structure. If `null`, the relevance scores are ignored.
+     * @param doubleProvider A function that converts the ranked relevances into their double representations.
+     *
      * @return the rank metrics result
      */
     fun <T> calculateMetrics(
         rankedResults: List<List<T>>,
         groundTruth: Set<T>,
-        stringProvider: (T) -> String
+        stringProvider: (T) -> String,
+        rankedRelevances: List<List<T>>?,
+        doubleProvider: (T) -> Double
     ): SingleRankMetricsResult {
         return calculateMetrics(
             rankedResults.map { id -> id.map { stringProvider(it) } },
-            groundTruth.map { stringProvider(it) }.toSet()
+            groundTruth.map { stringProvider(it) }.toSet(),
+            rankedRelevances?.map { id -> id.map { doubleProvider(it) } }
         )
     }
 
@@ -38,11 +45,14 @@ interface RankMetricsCalculator {
      * Calculates the metrics for the given ranked results.
      * @param rankedResults the ranked results
      * @param groundTruth the ground truth
+     * @param rankedRelevances An optional list of lists representing the relevance scores associated with each ranked result.
+     *                         If provided, this list must correspond to `rankedResults` in structure. If `null`, the relevance scores are ignored.
      * @return the rank metrics result
      */
     fun calculateMetrics(
         rankedResults: List<List<String>>,
-        groundTruth: Set<String>
+        groundTruth: Set<String>,
+        rankedRelevances: List<List<Double>>?
     ): SingleRankMetricsResult
 
     /**

@@ -1,6 +1,7 @@
 package edu.kit.kastel.mcse.ardoco.metrics.internal
 
 import edu.kit.kastel.mcse.ardoco.metrics.RankMetricsCalculator
+import edu.kit.kastel.mcse.ardoco.metrics.calculation.calculateAUC
 import edu.kit.kastel.mcse.ardoco.metrics.calculation.calculateLAG
 import edu.kit.kastel.mcse.ardoco.metrics.calculation.calculateMAP
 import edu.kit.kastel.mcse.ardoco.metrics.result.AggregatedRankMetricsResult
@@ -10,11 +11,13 @@ import edu.kit.kastel.mcse.ardoco.metrics.result.SingleRankMetricsResult
 internal class RankMetricsCalculatorImpl : RankMetricsCalculator {
     override fun calculateMetrics(
         rankedResults: List<List<String>>,
-        groundTruth: Set<String>
+        groundTruth: Set<String>,
+        rankedRelevances: List<List<Double>>?
     ): SingleRankMetricsResult {
         val map = calculateMAP(rankedResults, groundTruth)
         val lag = calculateLAG(rankedResults, groundTruth)
-        return SingleRankMetricsResult(map, lag, groundTruth.size)
+        val auc = rankedRelevances?.let { calculateAUC(rankedResults, it, groundTruth) }
+        return SingleRankMetricsResult(map, lag, auc, groundTruth.size)
     }
 
     override fun calculateAverages(
@@ -42,18 +45,24 @@ internal class RankMetricsCalculatorImpl : RankMetricsCalculator {
 
         var map = 0.0
         var lag = 0.0
+        var auc = 0.0
 
         var sumOfWeights = 0.0
 
         for ((i, rankMetricsResult) in singleRankMetricsResults.withIndex()) {
             map += rankMetricsResult.map * weights[i]
             lag += rankMetricsResult.lag * weights[i]
+            if (rankMetricsResult.auc != null) auc += rankMetricsResult.auc * weights[i]
             sumOfWeights += weights[i]
         }
 
         map /= sumOfWeights
         lag /= sumOfWeights
 
-        return AggregatedRankMetricsResult(type, map, lag, singleRankMetricsResults, weights)
+        return if (singleRankMetricsResults.all { it.auc == null }) {
+            AggregatedRankMetricsResult(type, map, lag, null, singleRankMetricsResults, weights)
+        } else {
+            AggregatedRankMetricsResult(type, map, lag, auc, singleRankMetricsResults, weights)
+        }
     }
 }
