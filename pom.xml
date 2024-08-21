@@ -50,7 +50,7 @@
     <!-- Kotlin -->
     <kotlin.code.style>official</kotlin.code.style>
     <kotlin.compiler.jvmTarget>${java.version}</kotlin.compiler.jvmTarget>
-    <kotlin.version>1.9.22</kotlin.version>
+    <kotlin.version>2.0.10</kotlin.version>
   </properties>
 
   <dependencyManagement>
@@ -226,38 +226,6 @@
       <!-- Kotlin -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>3.5.0</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>add-source</goal>
-            </goals>
-            <phase>generate-sources</phase>
-            <configuration>
-              <sources>
-                <source>src/main/java</source>
-                <source>src/main/kotlin</source>
-              </sources>
-            </configuration>
-          </execution>
-          <execution>
-            <id>add-test-source</id>
-            <goals>
-              <goal>add-test-source</goal>
-            </goals>
-            <phase>generate-test-sources</phase>
-            <configuration>
-              <sources>
-                <source>src/test/java</source>
-                <source>src/test/kotlin</source>
-              </sources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
         <artifactId>flatten-maven-plugin</artifactId>
       </plugin>
       <plugin>
@@ -271,7 +239,7 @@
       <plugin>
         <groupId>org.jetbrains.dokka</groupId>
         <artifactId>dokka-maven-plugin</artifactId>
-        <version>1.9.10</version>
+        <version>1.9.20</version>
         <configuration>
           <failOnWarning>false</failOnWarning>
           <reportUndocumented>false</reportUndocumented>
@@ -333,6 +301,8 @@
         </configuration>
       </plugin>
     </plugins>
+    <sourceDirectory>src/main/kotlin</sourceDirectory>
+    <testSourceDirectory>src/test/kotlin</testSourceDirectory>
   </build>
 
   <profiles>

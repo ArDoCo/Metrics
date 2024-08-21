@@ -92,13 +92,13 @@ internal class ClassificationMetricsCalculatorImpl : ClassificationMetricsCalcul
     }
 
     private fun calculateMicroAverage(singleClassificationResults: List<SingleClassificationResult<*>>): AggregatedClassificationResult {
-        if (singleClassificationResults.isEmpty()) {
-            throw IllegalArgumentException("classificationResults must not be empty")
-        }
+        require(singleClassificationResults.isNotEmpty()) { "classificationResults must not be empty" }
 
-        if (!singleClassificationResults.all { (singleClassificationResults[0].tn == null) == (it.tn == null) }) {
-            throw IllegalArgumentException("All classificationResults must have either all or no tn")
-        }
+        require(
+            singleClassificationResults.all {
+                (singleClassificationResults[0].tn == null) == (it.tn == null)
+            }
+        ) { "All classificationResults must have either all or no tn" }
 
         var tp = 0
         var fp = 0
@@ -127,13 +127,13 @@ internal class ClassificationMetricsCalculatorImpl : ClassificationMetricsCalcul
         weights: List<Int>,
         type: AggregationType
     ): AggregatedClassificationResult {
-        if (singleClassificationResults.isEmpty()) {
-            throw IllegalArgumentException("classificationResults must not be empty")
-        }
+        require(singleClassificationResults.isNotEmpty()) { "classificationResults must not be empty" }
 
-        if (!singleClassificationResults.all { (singleClassificationResults[0].tn == null) == (it.tn == null) }) {
-            throw IllegalArgumentException("All classificationResults must have either all or no tn")
-        }
+        require(
+            singleClassificationResults.all {
+                (singleClassificationResults[0].tn == null) == (it.tn == null)
+            }
+        ) { "All classificationResults must have either all or no tn" }
 
         var precision = 0.0
         var recall = 0.0
@@ -168,8 +168,8 @@ internal class ClassificationMetricsCalculatorImpl : ClassificationMetricsCalcul
         phiCoefficientMax /= sumOfWeights
         phiOverPhiMax /= sumOfWeights
 
-        if (singleClassificationResults[0].tn == null) {
-            return AggregatedClassificationResult(
+        return if (singleClassificationResults[0].tn == null) {
+            AggregatedClassificationResult(
                 type,
                 precision,
                 recall,
@@ -178,7 +178,7 @@ internal class ClassificationMetricsCalculatorImpl : ClassificationMetricsCalcul
                 singleClassificationResults, weights
             )
         } else {
-            return AggregatedClassificationResult(
+            AggregatedClassificationResult(
                 type,
                 precision,
                 recall,

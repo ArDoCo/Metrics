@@ -141,15 +141,17 @@ fun calculatePhiCoefficientMax(
     val nominator = fp.add(tn).multiply(tp.add(fp)).sqrt(MathContext.DECIMAL128)
     val denominator = fn.add(tn).multiply(tp.add(fn)).sqrt(MathContext.DECIMAL128)
 
-    if (denominator == BigDecimal.ZERO) {
-        return 0.0
-    }
-
     return if (test) {
         // standard case
+        if (denominator == BigDecimal.ZERO) {
+            return 0.0
+        }
         nominator.divide(denominator, MathContext.DECIMAL128).toDouble()
     } else {
         // if test is not true, you have to swap nominator and denominator as then you have to mirror the confusion matrix (,i.e., swap TP and TN)
+        if (nominator == BigDecimal.ZERO) {
+            return 0.0
+        }
         denominator.divide(nominator, MathContext.DECIMAL128).toDouble()
     }
 }

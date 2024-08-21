@@ -38,9 +38,7 @@ internal class RankMetricsCalculatorImpl : RankMetricsCalculator {
         weights: List<Int>,
         type: AggregationType
     ): AggregatedRankMetricsResult {
-        if (singleRankMetricsResults.isEmpty()) {
-            throw IllegalArgumentException("rankMetricsResults must not be empty")
-        }
+        require(singleRankMetricsResults.isNotEmpty()) { "rankMetricsResults must not be empty" }
 
         var map = 0.0
         var lag = 0.0

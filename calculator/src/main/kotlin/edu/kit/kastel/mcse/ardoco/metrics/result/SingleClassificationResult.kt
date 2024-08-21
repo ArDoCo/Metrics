@@ -1,9 +1,19 @@
 package edu.kit.kastel.mcse.ardoco.metrics.result
 
+import edu.kit.kastel.mcse.ardoco.metrics.result.ClassificationResult.Companion.logger
+
+/**
+ * Represents the result of metrics for one classification task.
+ * @param T the type of classified elements
+ */
 data class SingleClassificationResult<T>(
+    /** The true positives */
     val tp: Set<T>,
+    /** The false positives */
     val fp: Set<T>,
+    /** The false negatives */
     val fn: Set<T>,
+    /** The true negatives. If not available, this is null. */
     val tn: Int?,
     override val precision: Double,
     override val recall: Double,
@@ -16,17 +26,10 @@ data class SingleClassificationResult<T>(
     override val phiOverPhiMax: Double?
 ) : ClassificationResult {
     override fun prettyPrint() {
-        println("True Positives: ${tp.size}")
-        println("False Positives: ${fp.size}")
-        println("False Negatives: ${fn.size}")
-        println("True Negatives: ${tn ?: "N/A"}")
-        println("Precision: $precision")
-        println("Recall: $recall")
-        println("F1-Score: $f1")
-        if (accuracy != null) println("Accuracy: $accuracy")
-        if (specificity != null) println("Specificity: $specificity")
-        if (phiCoefficient != null) println("Phi Coefficient: $phiCoefficient")
-        if (phiCoefficientMax != null) println("Phi Coefficient Max: $phiCoefficientMax")
-        if (phiOverPhiMax != null) println("Phi over Phi Max: $phiOverPhiMax")
+        logger.info("True Positives: ${tp.size}")
+        logger.info("False Positives: ${fp.size}")
+        logger.info("False Negatives: ${fn.size}")
+        logger.info("True Negatives: ${tn ?: "N/A"}")
+        super.prettyPrint()
     }
 }

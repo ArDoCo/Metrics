@@ -37,6 +37,10 @@
       <artifactId>kotlinx-cli-jvm</artifactId>
       <version>0.3.6</version>
     </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+    </dependency>
   </dependencies>
 
   <build>

@@ -1,6 +1,10 @@
 package edu.kit.kastel.mcse.ardoco.metrics.result
 
+import edu.kit.kastel.mcse.ardoco.metrics.result.ClassificationResult.Companion.logger
+
+/** Represents the aggregation of multiple classification results. */
 data class AggregatedClassificationResult(
+    /** The type of aggregation */
     val type: AggregationType,
     override val precision: Double,
     override val recall: Double,
@@ -10,36 +14,39 @@ data class AggregatedClassificationResult(
     override val phiCoefficient: Double?,
     override val phiCoefficientMax: Double?,
     override val phiOverPhiMax: Double?,
+    /** The original single classification results that were aggregated */
     val originalSingleClassificationResults: List<SingleClassificationResult<*>>,
+    /** The weights of the original single classification results (only if applicable) */
     val weights: List<Int>?
 ) : ClassificationResult {
     override fun prettyPrint() {
-        println("Type: $type")
-        println("Precision: $precision")
-        println("Recall: $recall")
-        println("F1-Score: $f1")
-        if (accuracy != null) println("Accuracy: $accuracy")
-        if (specificity != null) println("Specificity: $specificity")
-        if (phiCoefficient != null) println("Phi Coefficient: $phiCoefficient")
-        if (phiCoefficientMax != null) println("Phi Coefficient Max: $phiCoefficientMax")
-        if (phiOverPhiMax != null) println("Phi over Phi Max: $phiOverPhiMax")
+        logger.info("Type: $type")
+        super.prettyPrint()
     }
 
+    /**
+     * Creates an aggregated classification result.
+     *
+     * @param metrics The metrics of the aggregation (this information will be copied to this result).
+     * @param type The type of aggregation.
+     * @param originalSingleClassificationResults The original single classification results that were aggregated.
+     * @param weights The weights of the original single classification results (only if applicable).
+     */
     constructor(
-        singleClassificationResult: SingleClassificationResult<*>,
+        metrics: SingleClassificationResult<*>,
         type: AggregationType,
         originalSingleClassificationResults: List<SingleClassificationResult<*>>,
         weights: List<Int>?
     ) : this(
         type,
-        singleClassificationResult.precision,
-        singleClassificationResult.recall,
-        singleClassificationResult.f1,
-        singleClassificationResult.accuracy,
-        singleClassificationResult.specificity,
-        singleClassificationResult.phiCoefficient,
-        singleClassificationResult.phiCoefficientMax,
-        singleClassificationResult.phiOverPhiMax,
+        metrics.precision,
+        metrics.recall,
+        metrics.f1,
+        metrics.accuracy,
+        metrics.specificity,
+        metrics.phiCoefficient,
+        metrics.phiCoefficientMax,
+        metrics.phiOverPhiMax,
         originalSingleClassificationResults,
         weights
     )
