@@ -43,7 +43,7 @@ interface RankMetricsCalculator {
 
     /**
      * Calculates the metrics for the given ranked results.
-     * @param rankedResults the ranked results
+     * @param rankedResults the ranked results as a list of sorted lists (most relevant artifacts first). Each list represents one query of a source artifact.
      * @param groundTruth the ground truth
      * @param rankedRelevances An optional list of lists representing the relevance scores associated with each ranked result.
      *                         If provided, this list must correspond to `rankedResults` in structure. If `null`, the relevance scores are ignored.

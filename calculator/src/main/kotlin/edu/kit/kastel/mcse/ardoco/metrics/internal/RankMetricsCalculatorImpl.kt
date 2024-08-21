@@ -14,6 +14,8 @@ internal class RankMetricsCalculatorImpl : RankMetricsCalculator {
         groundTruth: Set<String>,
         rankedRelevances: List<List<Double>>?
     ): SingleRankMetricsResult {
+        require(rankedResults.isNotEmpty())
+        require(rankedResults.all { it.size == rankedResults.first().size })
         val map = calculateMAP(rankedResults, groundTruth)
         val lag = calculateLAG(rankedResults, groundTruth)
         val auc = rankedRelevances?.let { calculateAUC(rankedResults, it, groundTruth) }

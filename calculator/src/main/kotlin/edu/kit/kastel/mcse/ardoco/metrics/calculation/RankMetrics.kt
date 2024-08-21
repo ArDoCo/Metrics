@@ -2,15 +2,14 @@ package edu.kit.kastel.mcse.ardoco.metrics.calculation
 
 /**
  * Calculates the average precision for a given ordered list of ranked results and ground truth.
- * // TODO: Information on actual order of list
- * @param similarityList The ranked results for a query.
+ * @param similarityList The ranked results for a query as a list of sorted lists (most relevant artifacts first). Each list represents one query of a source artifact.
  * @param groundTruth The ground truth for the query.
- * @return The average precision for the query.
+ * @return The average precision for the query and whether the gold standard includes a link for this query.
  */
 fun calculateAP(
     similarityList: List<String>,
     groundTruth: Set<String>
-): Double {
+): Pair<Double, Boolean> {
     var relevantLinksAtK = 0
     var ap = 0.0
 
@@ -22,15 +21,16 @@ fun calculateAP(
         ap += precisionAtK * relevant
     }
 
-    ap = if (relevantLinksAtK == 0) 1.0 else ap / relevantLinksAtK
+    ap = if (relevantLinksAtK == 0) 0.0 else ap / relevantLinksAtK
 
-    return ap
+    return ap to (relevantLinksAtK != 0)
 }
 
 /**
  * Calculates the mean average precision for a given set of ranked results and ground truth.
+ * We assume that the rankedResults lists contain all possible target artifacts!
  *
- * @param rankedResults The ranked results for each query.
+ * @param rankedResults The ranked results for each query as a list of sorted lists (most relevant artifacts first). Each list represents one query of a source artifact.
  * @param groundTruth The ground truth for the queries.
  * @return The mean average precision for the queries.
  */
@@ -41,8 +41,8 @@ fun calculateMAP(
     var map = 0.0
     var numberOfGroundTruthSourceArtifacts = 0
     for (rankedResult in rankedResults) {
-        val ap = calculateAP(rankedResult, groundTruth)
-        if (ap > 0) numberOfGroundTruthSourceArtifacts++
+        val (ap, inGroundTruth) = calculateAP(rankedResult, groundTruth)
+        if (inGroundTruth) numberOfGroundTruthSourceArtifacts++
         map += ap
     }
 
@@ -132,10 +132,7 @@ fun calculateROC(
     require(relevances.size == isTPLabels.size) { "Relevances and labels must have the same length" }
 
     // Create a list of pairs (relevance, isTPLabel) and sort it by relevance in descending order
-    val relevanceIsTPList: MutableList<Pair<Double, Boolean>> = ArrayList()
-    for (i in relevances.indices) {
-        relevanceIsTPList.add(relevances[i] to isTPLabels[i])
-    }
+    val relevanceIsTPList: MutableList<Pair<Double, Boolean>> = relevances.zip(isTPLabels).toMutableList()
     relevanceIsTPList.sortByDescending { it.first }
 
     // Initialize variables for TPR and FPR
