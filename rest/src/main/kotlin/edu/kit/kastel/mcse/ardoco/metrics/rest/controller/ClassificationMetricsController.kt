@@ -15,9 +15,7 @@ import org.springframework.web.bind.annotation.RestController
 class ClassificationMetricsController {
     @Operation(summary = "Check if the service is running")
     @GetMapping
-    fun running(): String {
-        return "ClassificationMetricsController is running"
-    }
+    fun running(): String = "ClassificationMetricsController is running"
 
     @Operation(summary = "Calculate classification metrics for one project")
     @PostMapping

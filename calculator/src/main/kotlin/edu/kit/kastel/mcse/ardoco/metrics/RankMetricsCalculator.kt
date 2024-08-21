@@ -21,9 +21,7 @@ interface RankMetricsCalculator {
      * @param rankedResults the ranked results as a list of sorted lists (most relevant artifacts first). Each list represents one query of a source artifact.
      * @param groundTruth the ground truth
      * @param stringProvider a function to convert the ranked results and ground truth to strings
-     * @param rankedRelevances An optional list of lists representing the relevance scores associated with each ranked result.
-     *                         If provided, this list must correspond to `rankedResults` in structure. If `null`, the relevance scores are ignored.
-     * @param doubleProvider A function that converts the ranked relevances into their double representations.
+     * @param relevanceBasedInput the input for relevance based calculations
      *
      * @return the rank metrics result
      */
@@ -31,28 +29,44 @@ interface RankMetricsCalculator {
         rankedResults: List<List<T>>,
         groundTruth: Set<T>,
         stringProvider: (T) -> String,
-        rankedRelevances: List<List<T>>?,
-        doubleProvider: (T) -> Double
+        relevanceBasedInput: RelevanceBasedInput<T>?
     ): SingleRankMetricsResult {
         return calculateMetrics(
             rankedResults.map { id -> id.map { stringProvider(it) } },
             groundTruth.map { stringProvider(it) }.toSet(),
-            rankedRelevances?.map { id -> id.map { doubleProvider(it) } }
+            relevanceBasedInput?.let { rbi ->
+                RelevanceBasedInput(
+                    rbi.rankedRelevances.map { id -> id.map { rbi.doubleProvider(it) } },
+                    { it },
+                    rbi.biggerIsMoreSimilar
+                )
+            }
         )
     }
+
+    /**
+     * @param rankedRelevances An optional list of lists representing the relevance scores associated with each ranked result.
+     *                         If provided, this list must correspond to `rankedResults` in structure. If `null`, the relevance scores are ignored.
+     * @param doubleProvider A function that converts the ranked relevances into their double representations.
+     * @param biggerIsMoreSimilar Whether the relevance scores are more similar if bigger
+     */
+    data class RelevanceBasedInput<T>(
+        val rankedRelevances: List<List<T>>,
+        val doubleProvider: ((T) -> Double),
+        val biggerIsMoreSimilar: Boolean
+    )
 
     /**
      * Calculates the metrics for the given ranked results.
      * @param rankedResults the ranked results as a list of sorted lists (most relevant artifacts first). Each list represents one query of a source artifact.
      * @param groundTruth the ground truth
-     * @param rankedRelevances An optional list of lists representing the relevance scores associated with each ranked result.
-     *                         If provided, this list must correspond to `rankedResults` in structure. If `null`, the relevance scores are ignored.
+     * @param relevanceBasedInput the input for relevance based calculation
      * @return the rank metrics result
      */
     fun calculateMetrics(
         rankedResults: List<List<String>>,
         groundTruth: Set<String>,
-        rankedRelevances: List<List<Double>>?
+        relevanceBasedInput: RelevanceBasedInput<Double>?
     ): SingleRankMetricsResult
 
     /**

@@ -15,16 +15,10 @@ import java.io.File
 @OptIn(ExperimentalCli::class)
 class RankCommand(private val outputFileOption: SingleNullableOption<String>) : Subcommand("rank", "Calculates rank metrics") {
     private val rankedListDirectoryOption by option(
-        ArgType.String,
-        shortName = "r",
-        description = "The directory of the ranked list files",
-        fullName = "ranked-list-directory"
+        ArgType.String, shortName = "r", description = "The directory of the ranked list files", fullName = "ranked-list-directory"
     ).required()
     private val groundTruthFileOption by option(
-        ArgType.String,
-        shortName = "g",
-        description = "The ground truth file",
-        fullName = "ground-truth"
+        ArgType.String, shortName = "g", description = "The ground truth file", fullName = "ground-truth"
     ).required()
     private val fileHeaderOption by option(ArgType.Boolean, description = "Whether the files have a header", fullName = "header").default(false)
     private val rankedRelevanceListDirectoryOption by option(
@@ -32,7 +26,11 @@ class RankCommand(private val outputFileOption: SingleNullableOption<String>) : 
         shortName = "rrl",
         description = "The directory of the ranked relevance list files",
         fullName = "ranked-relevance-list-directory"
-    ).default("")
+    )
+    private val biggerIsMoreSimilar by option(
+        ArgType.String, shortName = "b", description = "Whether the relevance scores are more similar if bigger", fullName = "bigger-is-more-similar"
+    )
+
 
     override fun execute() {
         println("Calculating rank metrics")
@@ -47,39 +45,41 @@ class RankCommand(private val outputFileOption: SingleNullableOption<String>) : 
             println("The provided path is not a directory")
             return
         }
-        val rankedResults: List<List<String>> =
-            rankedListDirectory.listFiles()?.filter { file ->
-                file.isFile
-            }?.map { file -> file.readLines().filter { it.isNotBlank() }.drop(if (fileHeaderOption) 1 else 0) } ?: emptyList()
+        val rankedResults: List<List<String>> = rankedListDirectory.listFiles()?.filter { file ->
+            file.isFile
+        }?.map { file -> file.readLines().filter { it.isNotBlank() }.drop(if (fileHeaderOption) 1 else 0) } ?: emptyList()
         if (rankedResults.isEmpty()) {
             println("No classification results found")
             return
         }
         val groundTruth = groundTruthFile.readLines().filter { it.isNotBlank() }.drop(if (fileHeaderOption) 1 else 0).toSet()
 
-        var rankedRelevances: List<List<Double>>? = null
-        if (rankedRelevanceListDirectoryOption != "") {
-            val rankedRelevanceListDirectory = File(rankedRelevanceListDirectoryOption)
+        var relevanceBasedInput: RankMetricsCalculator.RelevanceBasedInput<Double>? = null
+        if (rankedRelevanceListDirectoryOption != null) {
+            val rankedRelevanceListDirectory = File(rankedRelevanceListDirectoryOption!!)
             if (!rankedRelevanceListDirectory.exists() || !rankedRelevanceListDirectory.isDirectory) {
                 println("The directory of the ranked relevance list files does not exist or is not a directory")
                 return
             }
-            rankedRelevances = rankedRelevanceListDirectory.listFiles()?.filter { file ->
+            val rankedRelevances = rankedRelevanceListDirectory.listFiles()?.filter { file ->
                 file.isFile
             }?.map { file -> file.readLines().filter { it.isNotBlank() }.map { it.toDouble() }.drop(if (fileHeaderOption) 1 else 0) } ?: emptyList()
             if (rankedRelevances.isEmpty()) {
                 println("No relevance scores found")
                 return
             }
+            if (biggerIsMoreSimilar == null) {
+                throw IllegalArgumentException("ranked relevances and bigger is more similar can only occur together")
+            }
+            relevanceBasedInput = if (biggerIsMoreSimilar != null) RankMetricsCalculator.RelevanceBasedInput(
+                rankedRelevances, { it }, biggerIsMoreSimilar.toBoolean()
+            ) else null
         }
         val rankMetrics = RankMetricsCalculator.Instance
 
-        val result =
-            rankMetrics.calculateMetrics(
-                rankedResults,
-                groundTruth,
-                rankedRelevances
-            )
+        val result = rankMetrics.calculateMetrics(
+            rankedResults, groundTruth, relevanceBasedInput
+        )
         result.prettyPrint()
 
         val output = outputFileOption.value

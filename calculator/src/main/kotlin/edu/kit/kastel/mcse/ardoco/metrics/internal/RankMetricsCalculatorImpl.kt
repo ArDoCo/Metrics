@@ -12,13 +12,13 @@ internal class RankMetricsCalculatorImpl : RankMetricsCalculator {
     override fun calculateMetrics(
         rankedResults: List<List<String>>,
         groundTruth: Set<String>,
-        rankedRelevances: List<List<Double>>?
+        relevanceBasedInput: RankMetricsCalculator.RelevanceBasedInput<Double>?
     ): SingleRankMetricsResult {
         require(rankedResults.isNotEmpty())
         require(rankedResults.all { it.size == rankedResults.first().size })
         val map = calculateMAP(rankedResults, groundTruth)
         val lag = calculateLAG(rankedResults, groundTruth)
-        val auc = rankedRelevances?.let { calculateAUC(rankedResults, it, groundTruth) }
+        val auc = relevanceBasedInput?.let { calculateAUC(rankedResults, it.rankedRelevances, groundTruth, it.biggerIsMoreSimilar) }
         return SingleRankMetricsResult(map, lag, auc, groundTruth.size)
     }
 

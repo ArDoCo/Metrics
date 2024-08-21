@@ -85,7 +85,8 @@ fun calculateLAG(
 fun calculateAUC(
     rankedResults: List<List<String>>,
     rankedRelevances: List<List<Double>>,
-    groundTruth: Set<String>
+    groundTruth: Set<String>,
+    biggerIsMoreSimilar: Boolean
 ): Double {
     require(rankedResults.size == rankedRelevances.size) {
         "Results and relevance lists must have the same size."
@@ -103,7 +104,7 @@ fun calculateAUC(
         flattenedTPLabels += results.map { groundTruth.contains(it) }
     }
 
-    return calculateAUC(calculateROC(flattenedRelevances, flattenedTPLabels))
+    return calculateAUC(calculateROC(flattenedRelevances, flattenedTPLabels, biggerIsMoreSimilar))
 }
 
 /**
@@ -127,13 +128,14 @@ fun calculateAUC(
  */
 fun calculateROC(
     relevances: List<Double>,
-    isTPLabels: List<Boolean>
+    isTPLabels: List<Boolean>,
+    biggerIsMoreSimilar: Boolean
 ): List<DoubleArray> {
     require(relevances.size == isTPLabels.size) { "Relevances and labels must have the same length" }
 
     // Create a list of pairs (relevance, isTPLabel) and sort it by relevance in descending order
     val relevanceIsTPList: MutableList<Pair<Double, Boolean>> = relevances.zip(isTPLabels).toMutableList()
-    relevanceIsTPList.sortByDescending { it.first }
+    if (biggerIsMoreSimilar) relevanceIsTPList.sortByDescending { it.first } else relevanceIsTPList.sortBy { it.first }
 
     // Initialize variables for TPR and FPR
     val totalPositives = isTPLabels.count { it }

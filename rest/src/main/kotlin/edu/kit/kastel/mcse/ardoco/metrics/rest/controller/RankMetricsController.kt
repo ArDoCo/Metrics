@@ -25,8 +25,20 @@ class RankMetricsController {
         @RequestBody body: RankMetricsRequest
     ): SingleRankMetricsResult {
         val rankMetricsCalculator = RankMetricsCalculator.Instance
-        val result = rankMetricsCalculator.calculateMetrics(body.rankedResults, body.groundTruth, body.rankedRelevances)
+        val relevanceBasedInput = relevanceBasedInput(body)
+        val result = rankMetricsCalculator.calculateMetrics(body.rankedResults, body.groundTruth, relevanceBasedInput)
         return result
+    }
+
+    private fun relevanceBasedInput(body: RankMetricsRequest): RankMetricsCalculator.RelevanceBasedInput<Double>? {
+        if ((body.rankedRelevances == null) != (body.biggerIsMoreSimilar == null)) {
+            throw IllegalArgumentException("ranked relevances and bigger is more similar can only occur together")
+        }
+        val relevanceBasedInput =
+            if (body.rankedRelevances != null && body.biggerIsMoreSimilar != null) RankMetricsCalculator.RelevanceBasedInput(
+                body.rankedRelevances, { it }, body.biggerIsMoreSimilar
+            ) else null
+        return relevanceBasedInput
     }
 
     @Operation(summary = "Calculate rank metrics for multiple projects. Calculate the average and optionally a weighted average.")
@@ -37,10 +49,10 @@ class RankMetricsController {
         val rankMetricsCalculator = RankMetricsCalculator.Instance
 
         val requests = body.rankMetricsRequests
-        val results =
-            requests.map {
-                rankMetricsCalculator.calculateMetrics(it.rankedResults, it.groundTruth, it.rankedRelevances)
-            }
+        val results = requests.map {
+            val relevanceBasedInput = relevanceBasedInput(it)
+            rankMetricsCalculator.calculateMetrics(it.rankedResults, it.groundTruth, relevanceBasedInput)
+        }
 
         val averages = rankMetricsCalculator.calculateAverages(results, body.weights)
 
@@ -48,8 +60,7 @@ class RankMetricsController {
     }
 
     data class AverageRankMetricsRequest(
-        val rankMetricsRequests: List<RankMetricsRequest>,
-        val weights: List<Int>? = null
+        val rankMetricsRequests: List<RankMetricsRequest>, val weights: List<Int>? = null
     )
 
     data class AverageRankMetricsResponse(
@@ -59,6 +70,7 @@ class RankMetricsController {
     data class RankMetricsRequest(
         val rankedResults: List<List<String>>,
         val groundTruth: Set<String>,
-        val rankedRelevances: List<List<Double>>?
+        val rankedRelevances: List<List<Double>>?,
+        val biggerIsMoreSimilar: Boolean?
     )
 }
