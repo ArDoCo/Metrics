@@ -27,6 +27,12 @@ class RankCommand(private val outputFileOption: SingleNullableOption<String>) : 
         fullName = "ground-truth"
     ).required()
     private val fileHeaderOption by option(ArgType.Boolean, description = "Whether the files have a header", fullName = "header").default(false)
+    private val rankedRelevanceListDirectoryOption by option(
+        ArgType.String,
+        shortName = "rrl",
+        description = "The directory of the ranked relevance list files",
+        fullName = "ranked-relevance-list-directory"
+    ).default("")
 
     override fun execute() {
         println("Calculating rank metrics")
@@ -42,8 +48,7 @@ class RankCommand(private val outputFileOption: SingleNullableOption<String>) : 
             return
         }
         val rankedResults: List<List<String>> =
-            rankedListDirectory.listFiles()?.filter {
-                    file ->
+            rankedListDirectory.listFiles()?.filter { file ->
                 file.isFile
             }?.map { file -> file.readLines().filter { it.isNotBlank() }.drop(if (fileHeaderOption) 1 else 0) } ?: emptyList()
         if (rankedResults.isEmpty()) {
@@ -52,12 +57,28 @@ class RankCommand(private val outputFileOption: SingleNullableOption<String>) : 
         }
         val groundTruth = groundTruthFile.readLines().filter { it.isNotBlank() }.drop(if (fileHeaderOption) 1 else 0).toSet()
 
+        var rankedRelevances: List<List<Double>>? = null
+        if (rankedRelevanceListDirectoryOption != "") {
+            val rankedRelevanceListDirectory = File(rankedRelevanceListDirectoryOption)
+            if (!rankedRelevanceListDirectory.exists() || !rankedRelevanceListDirectory.isDirectory) {
+                println("The directory of the ranked relevance list files does not exist or is not a directory")
+                return
+            }
+            rankedRelevances = rankedRelevanceListDirectory.listFiles()?.filter { file ->
+                file.isFile
+            }?.map { file -> file.readLines().filter { it.isNotBlank() }.map { it.toDouble() }.drop(if (fileHeaderOption) 1 else 0) } ?: emptyList()
+            if (rankedRelevances.isEmpty()) {
+                println("No relevance scores found")
+                return
+            }
+        }
         val rankMetrics = RankMetricsCalculator.Instance
 
         val result =
             rankMetrics.calculateMetrics(
                 rankedResults,
-                groundTruth
+                groundTruth,
+                rankedRelevances
             )
         result.prettyPrint()
 

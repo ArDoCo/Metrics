@@ -21,11 +21,11 @@ class RankMetricsController {
 
     @Operation(summary = "Calculate rank metrics for one project")
     @PostMapping
-    fun calculateClassificationMetrics(
+    fun calculateRankMetrics(
         @RequestBody body: RankMetricsRequest
     ): SingleRankMetricsResult {
         val rankMetricsCalculator = RankMetricsCalculator.Instance
-        val result = rankMetricsCalculator.calculateMetrics(body.rankedResults, body.groundTruth)
+        val result = rankMetricsCalculator.calculateMetrics(body.rankedResults, body.groundTruth, body.rankedRelevances)
         return result
     }
 
@@ -36,10 +36,10 @@ class RankMetricsController {
     ): AverageRankMetricsResponse {
         val rankMetricsCalculator = RankMetricsCalculator.Instance
 
-        val requests = body.classificationMetricsRequests
+        val requests = body.rankMetricsRequests
         val results =
             requests.map {
-                rankMetricsCalculator.calculateMetrics(it.rankedResults, it.groundTruth)
+                rankMetricsCalculator.calculateMetrics(it.rankedResults, it.groundTruth, it.rankedRelevances)
             }
 
         val averages = rankMetricsCalculator.calculateAverages(results, body.weights)
@@ -48,16 +48,17 @@ class RankMetricsController {
     }
 
     data class AverageRankMetricsRequest(
-        val classificationMetricsRequests: List<RankMetricsRequest>,
+        val rankMetricsRequests: List<RankMetricsRequest>,
         val weights: List<Int>? = null
     )
 
     data class AverageRankMetricsResponse(
-        val classificationResults: List<AggregatedRankMetricsResult>
+        val rankResults: List<AggregatedRankMetricsResult>
     )
 
     data class RankMetricsRequest(
         val rankedResults: List<List<String>>,
-        val groundTruth: Set<String>
+        val groundTruth: Set<String>,
+        val rankedRelevances: List<List<Double>>?
     )
 }
