@@ -83,7 +83,7 @@ internal class ClassificationMetricsCalculatorImpl : ClassificationMetricsCalcul
     ): List<AggregatedClassificationResult> {
         val macroAverage = calculateMacroAverage(singleClassificationResults)
 
-        val weightsForAverage = weights ?: singleClassificationResults.map { it.tp.size + it.fn.size }
+        val weightsForAverage = weights ?: singleClassificationResults.map { it.truePositives.size + it.falseNegatives.size }
         val weightedAverage = calculateWeightedAverage(singleClassificationResults, weightsForAverage, AggregationType.WEIGHTED_AVERAGE)
 
         val microAverage = calculateMicroAverage(singleClassificationResults)
@@ -96,21 +96,21 @@ internal class ClassificationMetricsCalculatorImpl : ClassificationMetricsCalcul
 
         require(
             singleClassificationResults.all {
-                (singleClassificationResults[0].tn == null) == (it.tn == null)
+                (singleClassificationResults[0].trueNegatives == null) == (it.trueNegatives == null)
             }
         ) { "All classificationResults must have either all or no tn" }
 
         var tp = 0
         var fp = 0
         var fn = 0
-        var tn: Int? = if (singleClassificationResults[0].tn != null) 0 else null
+        var tn: Int? = if (singleClassificationResults[0].trueNegatives != null) 0 else null
 
         for (classificationResult in singleClassificationResults) {
-            tp += classificationResult.tp.size
-            fp += classificationResult.fp.size
-            fn += classificationResult.fn.size
+            tp += classificationResult.truePositives.size
+            fp += classificationResult.falsePositives.size
+            fn += classificationResult.falseNegatives.size
             if (tn != null) {
-                tn += classificationResult.tn!!
+                tn += classificationResult.trueNegatives!!
             }
         }
 
@@ -131,7 +131,7 @@ internal class ClassificationMetricsCalculatorImpl : ClassificationMetricsCalcul
 
         require(
             singleClassificationResults.all {
-                (singleClassificationResults[0].tn == null) == (it.tn == null)
+                (singleClassificationResults[0].trueNegatives == null) == (it.trueNegatives == null)
             }
         ) { "All classificationResults must have either all or no tn" }
 
@@ -168,7 +168,7 @@ internal class ClassificationMetricsCalculatorImpl : ClassificationMetricsCalcul
         phiCoefficientMax /= sumOfWeights
         phiOverPhiMax /= sumOfWeights
 
-        return if (singleClassificationResults[0].tn == null) {
+        return if (singleClassificationResults[0].trueNegatives == null) {
             AggregatedClassificationResult(
                 type,
                 precision,

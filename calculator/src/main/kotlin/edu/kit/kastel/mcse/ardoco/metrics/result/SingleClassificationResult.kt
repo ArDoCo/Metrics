@@ -8,13 +8,13 @@ import edu.kit.kastel.mcse.ardoco.metrics.result.ClassificationResult.Companion.
  */
 data class SingleClassificationResult<T>(
     /** The true positives */
-    val tp: Set<T>,
+    val truePositives: Set<T>,
     /** The false positives */
-    val fp: Set<T>,
+    val falsePositives: Set<T>,
     /** The false negatives */
-    val fn: Set<T>,
+    val falseNegatives: Set<T>,
     /** The true negatives. If not available, this is null. */
-    val tn: Int?,
+    val trueNegatives: Int?,
     override val precision: Double,
     override val recall: Double,
     override val f1: Double,
@@ -26,10 +26,10 @@ data class SingleClassificationResult<T>(
     override val phiOverPhiMax: Double?
 ) : ClassificationResult {
     override fun prettyPrint() {
-        logger.info("True Positives: ${tp.size}")
-        logger.info("False Positives: ${fp.size}")
-        logger.info("False Negatives: ${fn.size}")
-        logger.info("True Negatives: ${tn ?: "N/A"}")
+        logger.info("True Positives: ${truePositives.size}")
+        logger.info("False Positives: ${falsePositives.size}")
+        logger.info("False Negatives: ${falseNegatives.size}")
+        logger.info("True Negatives: ${trueNegatives ?: "N/A"}")
         super.prettyPrint()
     }
 }
