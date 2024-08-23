@@ -2,7 +2,7 @@ name: Deploy to GitHub
 on:
   workflow_dispatch:
   release:
-    types: [created, published]
+    types: [created]
 jobs:
   publish-release-artifact:
     runs-on: ubuntu-latest
