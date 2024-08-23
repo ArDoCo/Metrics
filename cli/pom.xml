@@ -61,9 +61,10 @@
                   <mainClass>edu.kit.kastel.mcse.ardoco.metrics.cli.AppKt</mainClass>
                 </manifest>
               </archive>
-              <descriptorRefs>
-                <descriptorRef>jar-with-dependencies</descriptorRef>
-              </descriptorRefs>
+              <descriptors>
+                <descriptor>src/assembly/src.xml</descriptor>
+              </descriptors>
+              <finalName>metrics</finalName>
             </configuration>
           </execution>
         </executions>
