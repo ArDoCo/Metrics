@@ -15,4 +15,4 @@ WORKDIR /metrics
 COPY --from=builder /metrics/rest/target/rest-*.jar rest.jar
 
 EXPOSE 8080
-ENTRYPOINT java -jar /metrics/rest.jar
+ENTRYPOINT java -jar /metrics/rest.jar --server.use-forward-headers=true --server.forward-headers-strategy=framework
