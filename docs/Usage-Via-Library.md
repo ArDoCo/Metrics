@@ -56,6 +56,31 @@ fun main() {
 }
 ```
 
+```java
+import edu.kit.kastel.mcse.ardoco.metrics.ClassificationMetricsCalculator;
+import edu.kit.kastel.mcse.ardoco.metrics.result.SingleClassificationResult;
+
+import java.util.Set;
+
+public class ClassificationExample {
+    public static void main(String[] args) {
+        Set<String> classification = Set.of("A", "B", "C");
+        Set<String> groundTruth = Set.of("A", "C", "D");
+
+        // Use the ClassificationMetricsCalculator to calculate metrics
+        ClassificationMetricsCalculator calculator = ClassificationMetricsCalculator.getInstance();
+        SingleClassificationResult<String> result = calculator.calculateMetrics(
+                classification,
+                groundTruth,
+                null  // Confusion matrix sum (optional)
+        );
+
+        // Print the result, which includes precision, recall, F1 score, etc.
+        result.prettyPrint();
+    }
+}
+```
+
 ### Example for Rank Metrics:
 
 ```kotlin
@@ -78,6 +103,35 @@ fun main() {
     )
 
     result.prettyPrint()  // Logs MAP, LAG, AUC, etc.
+}
+```
+
+```java
+import edu.kit.kastel.mcse.ardoco.metrics.RankMetricsCalculator;
+import edu.kit.kastel.mcse.ardoco.metrics.result.SingleRankMetricsResult;
+
+import java.util.List;
+import java.util.Set;
+
+public class RankMetricsExample {
+    public static void main(String[] args) {
+        List<List<String>> rankedResults = List.of(
+                List.of("A", "B", "C"),  // Ranked results for query 1
+                List.of("B", "A", "D")   // Ranked results for query 2
+        );
+        Set<String> groundTruth = Set.of("A", "B");
+
+        // Use the RankMetricsCalculator to calculate metrics
+        RankMetricsCalculator calculator = RankMetricsCalculator.getInstance();
+        SingleRankMetricsResult result = calculator.calculateMetrics(
+                rankedResults,
+                groundTruth,
+                null  // Relevance-based input (optional)
+        );
+
+        // Print the result, which includes MAP, LAG, AUC, etc.
+        result.prettyPrint();
+    }
 }
 ```
 
@@ -131,6 +185,52 @@ fun main() {
 
     // Print the calculated rank metrics (MAP, LAG, AUC, etc.)
     result.prettyPrint()
+}
+```
+
+```
+import edu.kit.kastel.mcse.ardoco.metrics.RankMetricsCalculator;
+import edu.kit.kastel.mcse.ardoco.metrics.result.SingleRankMetricsResult;
+import edu.kit.kastel.mcse.ardoco.metrics.internal.RelevanceBasedInput;
+
+import java.util.List;
+import java.util.Set;
+
+public class RankMetricsWithRelevanceExample {
+    public static void main(String[] args) {
+        // Example ranked results for two queries
+        List<List<String>> rankedResults = List.of(
+            List.of("A", "B", "C"),  // Ranked results for query 1
+            List.of("D", "A", "B")   // Ranked results for query 2
+        );
+
+        // Ground truth for relevance (the most relevant results)
+        Set<String> groundTruth = Set.of("A", "B");
+
+        // Relevance scores associated with the ranked results
+        List<List<Double>> rankedRelevances = List.of(
+            List.of(0.9, 0.8, 0.4),  // Relevance scores for query 1
+            List.of(0.7, 0.6, 0.5)   // Relevance scores for query 2
+        );
+
+        // Creating the RelevanceBasedInput object
+        RelevanceBasedInput relevanceInput = new RelevanceBasedInput(
+            rankedRelevances,      // Relevance scores for ranked results
+            Double::valueOf,       // Function to provide the relevance value (identity function in this case)
+            true                   // Whether higher values mean more relevance
+        );
+
+        // Use the RankMetricsCalculator to calculate metrics
+        RankMetricsCalculator calculator = RankMetricsCalculator.getInstance();
+        SingleRankMetricsResult result = calculator.calculateMetrics(
+            rankedResults,
+            groundTruth,
+            relevanceInput  // Provide relevance-based input
+        );
+
+        // Print the calculated rank metrics (MAP, LAG, AUC, etc.)
+        result.prettyPrint();
+    }
 }
 ```
 
