@@ -36,6 +36,9 @@ Once the library is included, you can import and use the **ClassificationMetrics
 
 ### Example for Classification Metrics:
 
+<details>
+<summary>Kotlin example</summary>
+
 ```kotlin
 import edu.kit.kastel.mcse.ardoco.metrics.ClassificationMetricsCalculator
 import edu.kit.kastel.mcse.ardoco.metrics.result.SingleClassificationResult
@@ -55,6 +58,10 @@ fun main() {
     result.prettyPrint()  // Logs precision, recall, F1 score, etc.
 }
 ```
+
+</details>
+<details open>
+<summary>Java example</summary>
 
 ```java
 import edu.kit.kastel.mcse.ardoco.metrics.ClassificationMetricsCalculator;
@@ -80,8 +87,12 @@ public class ClassificationExample {
     }
 }
 ```
+</details>
 
 ### Example for Rank Metrics:
+
+<details>
+<summary>Kotlin example</summary>
 
 ```kotlin
 import edu.kit.kastel.mcse.ardoco.metrics.RankMetricsCalculator
@@ -105,6 +116,10 @@ fun main() {
     result.prettyPrint()  // Logs MAP, LAG, AUC, etc.
 }
 ```
+
+</details>
+<details open>
+<summary>Java example</summary>
 
 ```java
 import edu.kit.kastel.mcse.ardoco.metrics.RankMetricsCalculator;
@@ -134,6 +149,7 @@ public class RankMetricsExample {
     }
 }
 ```
+</details>
 
 ## 3. Customizing the Calculations
 
@@ -147,6 +163,9 @@ The **`RelevanceBasedInput`** class allows you to pass additional relevance scor
 
 #### Code Example:
 
+<details>
+<summary>Kotlin example</summary>
+    
 ```kotlin
 import edu.kit.kastel.mcse.ardoco.metrics.RankMetricsCalculator
 import edu.kit.kastel.mcse.ardoco.metrics.result.SingleRankMetricsResult
@@ -188,7 +207,11 @@ fun main() {
 }
 ```
 
-```
+</details>
+<details open>
+<summary>Java example</summary>
+
+```java
 import edu.kit.kastel.mcse.ardoco.metrics.RankMetricsCalculator;
 import edu.kit.kastel.mcse.ardoco.metrics.result.SingleRankMetricsResult;
 import edu.kit.kastel.mcse.ardoco.metrics.internal.RelevanceBasedInput;
@@ -233,6 +256,8 @@ public class RankMetricsWithRelevanceExample {
     }
 }
 ```
+</details>
+
 
 #### Explanation:
 1. **Ranked Results**: A list of lists where each list represents ranked items for a query.
