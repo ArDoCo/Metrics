@@ -1,4 +1,4 @@
-FROM maven:3-eclipse-temurin-21 AS builder
+FROM maven:3-eclipse-temurin-24 AS builder
 
 WORKDIR /metrics
 COPY . .
