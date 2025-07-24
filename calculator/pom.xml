@@ -7,6 +7,7 @@
     <version>${revision}</version>
   </parent>
   <artifactId>metrics</artifactId>
+  <name>ArDoCo Metrics (Calculation)</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
