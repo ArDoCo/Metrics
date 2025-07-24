@@ -42,7 +42,7 @@
   </distributionManagement>
 
   <properties>
-    <revision>0.1.2-SNAPSHOT</revision>
+    <revision>0.1.2</revision>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <project.source.encoding>UTF-8</project.source.encoding>
